@@ -1,0 +1,50 @@
+dir *.jpg *.png /tc /od | findstr /c:"%date%"
+:: The /c: switch makes findstr look for the exact string, which is more reliable.
+
+dir *.pdf /s | findstr "dd-mm-yyy" | findstr "16:00"
+
+dir /s | findstr "dd-mm-yyy" | findstr "18:*"
+
+dir /s *.*p*g | findstr "dd-mm-yyy"
+
+dir /s *.do* | findstr "dd-mm-yyy"
+
+dir /s "*.pdf" | findstr %date%"
+
+dir C:\Users\ /s *.pdf
+
+dir /s C:\Users\ *.pdf  <-- not is this format
+
+dir /od /tc  # Wrong order of switches
+dir /tc /od  # Correct order
+
+dir *.jpg *.png /tc | findstr "%date%"
+
+dir | findstr /v "Directory" | findstr /v "<DIR>"
+
+dir *.jpg *.png | findstr /v "Directory" | findstr /v "Volume" | findstr /v "bytes"
+
+
+/s - recursive search
+
+/b - bare format (no heading info)
+
+/a-d - files only (exclude directories)
+
+/od - Sort by date (oldest first)
+
+/o-d - Sort by date (newest first) ← This is what you want!
+
+/ot - Sort by time (oldest first)
+
+/o-t - Sort by time (newest first)
+
+/tw - Shows last written/modified time (default)
+
+/tc - Shows creation time (when file was downloaded)
+
+/ta - Shows last access time
+
+/t:w - Display time only (with /b)
+
+/t:c - Display creation time only
