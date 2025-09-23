@@ -1,0 +1,41 @@
+:: "copy" command
+
+
+:: Copies one or more files to another location.
+:: Limitations: Can’t copy entire directories; doesn’t preserve attributes, permissions, timestamps, etc.
+
+:: Syntax: 
+	copy [source] [destination]
+
+copy file.txt D:\backup\
+
+copy *.txt D:\backup\ /Y
+
+:: Common switches:
+:: /Y → Suppresses confirmation prompt when overwriting.
+:: /-Y → Forces confirmation before overwriting.
+
+************************************************************************************************
+cmd help info: help copy
+
+COPY [/D] [/V] [/N] [/Y | /-Y] [/Z] [/L] [/A | /B ] source [/A | /B]
+     [+ source [/A | /B] [+ ...]] [destination [/A | /B]]
+
+  source       Specifies the file or files to be copied.
+  /A           Indicates an ASCII text file.
+  /B           Indicates a binary file.
+  /D           Allow the destination file to be created decrypted
+  destination  Specifies the directory and/or filename for the new file(s).
+  /V           Verifies that new files are written correctly.
+  /N           Uses short filename, if available, when copying a file with a
+               non-8dot3 name.
+  /Y           Suppresses prompting to confirm you want to overwrite an
+               existing destination file.
+  /-Y          Causes prompting to confirm you want to overwrite an
+               existing destination file.
+  /Z           Copies networked files in restartable mode.
+  /L           If the source is a symbolic link, copy the link to the target
+               instead of the actual file the source link points to.
+
+************************************************************************************************
+
