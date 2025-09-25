@@ -1,0 +1,20 @@
+:: Correct usage from inside D:\:
+ren "Forms\InsertImage_Format_Position.docm" "Passport Size Photo 35x45frame_Macros.docm"
+
+:: If you want to rename it from elsewhere (if you are inside C:\ and want to rename a file in D:\), then:
+ren "D:\Forms\InsertImage_Format_Position.docm" "Passport Size Photo 35x45frame_Macros.docm"
+***********************************************************************************************
+
+:: cmd help info: help ren
+:: Renames a file or files.
+
+RENAME [drive:][path]filename1 filename2.
+REN [drive:][path]filename1 filename2.
+
+:: Note that you cannot specify a new drive or path for your destination file.
+
+:: Key points about ren in Windows CMD:
+:: You can only change the name, not the path.
+:: That means the first argument is the file (with path if needed).
+:: The second argument must be just the new file name, without a path.
+:: Spaces in file names require quotes.

@@ -2,12 +2,18 @@
 
 forfiles /p "C:\SourceFolder" /s /m *.* /d -30 /c "cmd /c move @path \"D:\TargetFolder\""
 
-/p "C:\SourceFolder" - Path to search
-/s - Include subdirectories
-/m *.* - File mask (all files)
-/d -30 - Files older than 30 days
-/c "cmd /c move @path \"D:\TargetFolder\"" - Command to execute
+:: /p "C:\SourceFolder" - Path to search
+:: /s - Include subdirectories
+:: /m *.* - File mask (all files)
+:: /d -30 - Files older than 30 days
+:: /c "cmd /c move @path \"D:\TargetFolder\"" - Command to execute
 
+	:: Outer /c = forfiles switch (defines what to execute).
+	:: -> /c "command" --> tells forfiles what command to run for each matched file.
+
+	:: Inner /c = cmd.exe switch (executes move or del and then exits).
+	::  -> cmd /c <string> --> means "run the given command string and then terminate".
+	:: If you removed the inner /c, it would just open a new Command Prompt window and do nothing, because cmd wouldn’t know what to execute.
 
 :: Delete files older than X days:
 

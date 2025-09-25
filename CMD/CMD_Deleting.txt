@@ -17,6 +17,17 @@ To delete an empty directory :					rmdir C:\path\to\emptydir
 								rd C:\path\to\emptydir
 
 
+forfiles /p "%USERPROFILE%\Downloads" /m *.* /d -1 /c "cmd /c del /f /q @path"
+:: /d -1 - Files older than today
+
+forfiles /p "%USERPROFILE%\Downloads" /m *.* /d -1 /c "cmd /c rd /s @path"
+:: deletes folders older than today
+
+/p path
+/m mask (identifying the files to be targeted)
+/d number of days
+/c command to run
+
 
 
 ********************************************************************************************************
