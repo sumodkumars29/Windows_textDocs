@@ -1,0 +1,141 @@
+:: shuts down the computer after a 30-second default timeout, showing a warning dialog to the user
+
+cmd:	shutdown /s
+
+:: Shuts down the computer right away.
+
+cmd:	shutdown /s /t 0
+
+:: forces all programs to close and restarts the computer immediately (0-second delay).
+
+cmd:	shutdown /r /f /t 0
+
+:: /r: Restart
+:: /f: Force close applications
+:: /t 0: Do it after 0 seconds (immediately)
+
+::shut down the computer in 5 minutes (300 seconds), and you want to warn your colleague with a custom message.
+
+cmd:	shutdown /s /t 300 /c "Server maintenance shutdown in 5 minutes. Please save your work."
+	
+:: stop the shutdown process as long as the countdown hasn't reached zero, only works during the timeout period
+
+cmd:	shutdown /a
+
+:: /a : abort
+
+:: opens a graphical tool that lets you select multiple computers to shut down or restart, and specify a reason for the action (which is logged). 
+:: This is primarily for system administrators in a domain environment.
+
+cmd:	shutdown /i
+
+/s	Shuts down the computer.
+/r	Restarts the computer.
+/l	Logs off the current user. (This is l as in "log", not the number 1).
+/h	Puts the computer into Hibernate (if enabled).
+/a	Aborts a system shutdown. Only works during the timeout period.
+/f	Forces running applications to close without warning. Use with caution!
+/t XXX	Sets a timeout period of XXX seconds before the action. Default is 30.
+/c "comment"	Adds a comment (message) that will be displayed to the user.
+/m \\ComputerName	Allows you to shut down a remote computer on the network.	
+
+
+:: Important Notes & Tips
+:: Run Command Prompt as Administrator: While basic shutdowns work in a normal Command Prompt, some actions (especially remote ones) require you to run Command Prompt as an Administrator.
+
+:: Reasons for Shutdown (/d): The /d parameter is used to log the reason for the shutdown. This is almost exclusively used in corporate environments where shutdowns are tracked. You need specific codes (p for planned, u for unplanned, followed by a major and minor reason code).
+
+:: Hibernate (/h): This only works if hibernation is enabled on your computer. You can enable it with the command powercfg /hibernate on in an admin Command Prompt.
+
+:: Full Hybrid Shutdown (/s) vs. Full Shutdown: Modern Windows uses a "Fast Startup" (hybrid shutdown) by default when you click "Shut down" in the Start Menu. The shutdown /s command also performs this hybrid shutdown. To do a full shutdown (which clears the kernel session completely, useful for troubleshooting), you can use:
+
+cmd:	shutdown /s /full /t 0
+
+
+******************************************************************************************************
+
+cmd help info: help shutdown
+Usage: shutdown [/i | /l | /s | /sg | /r | /g | /a | /p | /h | /e | /o] [/hybrid] [/soft] [/fw] [/f]
+    [/m \\computer][/t xxx][/d [p|u:]xx:yy [/c "comment"]]
+
+    No args    Display help. This is the same as typing /?.
+    /?         Display help. This is the same as not typing any options.
+    /i         Display the graphical user interface (GUI).
+               This must be the first option.
+    /l         Log off. This cannot be used with /m or /d options.
+    /s         Shutdown the computer.
+    /sg        Shutdown the computer. On the next boot, if Automatic Restart Sign-On
+               is enabled, automatically sign in and lock last interactive user.
+               After sign in, restart any registered applications.
+    /r         Full shutdown and restart the computer.
+    /g         Full shutdown and restart the computer. After the system is rebooted,
+               if Automatic Restart Sign-On is enabled, automatically sign in and
+               lock last interactive user.
+               After sign in, restart any registered applications.
+    /a         Abort a system shutdown.
+               This can only be used during the time-out period.
+               Combine with /fw to clear any pending boots to firmware.
+    /p         Turn off the local computer with no time-out or warning.
+               Can be used with /d and /f options.
+    /h         Hibernate the local computer.
+               Can be used with the /f option.
+    /hybrid    Performs a shutdown of the computer and prepares it for fast startup.
+               Must be used with /s option.
+    /fw        Combine with a shutdown option to cause the next boot to go to the
+               firmware user interface.
+    /e         Document the reason for an unexpected shutdown of a computer.
+    /o         Go to the advanced boot options menu and restart the computer.
+               Must be used with /r option.
+    /m \\computer Specify the target computer.
+    /t xxx     Set the time-out period before shutdown to xxx seconds.
+               The valid range is 0-315360000 (10 years), with a default of 30.
+               If the timeout period is greater than 0, the /f parameter is
+               implied.
+    /c "comment" Comment on the reason for the restart or shutdown.
+               Maximum of 512 characters allowed.
+    /f         Force running applications to close without forewarning users.
+               The /f parameter is implied when a value greater than 0 is
+               specified for the /t parameter.
+    /d [p|u:]xx:yy  Provide the reason for the restart or shutdown.
+               p indicates that the restart or shutdown is planned.
+               u indicates that the reason is user defined.
+               If neither p nor u is specified the restart or shutdown is
+               unplanned.
+               xx is the major reason number (positive integer less than 256).
+               yy is the minor reason number (positive integer less than 65536).
+
+Reasons on this computer:
+(E = Expected U = Unexpected P = planned, C = customer defined)
+Type    Major   Minor   Title
+
+ U      0       0       Other (Unplanned)
+E       0       0       Other (Unplanned)
+E P     0       0       Other (Planned)
+ U      0       5       Other Failure: System Unresponsive
+E       1       1       Hardware: Maintenance (Unplanned)
+E P     1       1       Hardware: Maintenance (Planned)
+E       1       2       Hardware: Installation (Unplanned)
+E P     1       2       Hardware: Installation (Planned)
+E       2       2       Operating System: Recovery (Unplanned)
+E P     2       2       Operating System: Recovery (Planned)
+  P     2       3       Operating System: Upgrade (Planned)
+E       2       4       Operating System: Reconfiguration (Unplanned)
+E P     2       4       Operating System: Reconfiguration (Planned)
+  P     2       16      Operating System: Service pack (Planned)
+        2       17      Operating System: Hot fix (Unplanned)
+  P     2       17      Operating System: Hot fix (Planned)
+        2       18      Operating System: Security fix (Unplanned)
+  P     2       18      Operating System: Security fix (Planned)
+E       4       1       Application: Maintenance (Unplanned)
+E P     4       1       Application: Maintenance (Planned)
+E P     4       2       Application: Installation (Planned)
+E       4       5       Application: Unresponsive
+E       4       6       Application: Unstable
+ U      5       15      System Failure: Stop error
+ U      5       19      Security issue (Unplanned)
+E       5       19      Security issue (Unplanned)
+E P     5       19      Security issue (Planned)
+E       5       20      Loss of network connectivity (Unplanned)
+ U      6       11      Power Failure: Cord Unplugged
+ U      6       12      Power Failure: Environment
+  P     7       0       Legacy API shutdown

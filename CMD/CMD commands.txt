@@ -1,37 +1,3 @@
-	tasklist | findstr /i chrome (/i - case insensitive)
-
-		chrome.exe            8788 Console            1   2,24,384 K
-		chrome.exe           11936 Console            1      1,964 K
-		chrome.exe            2608 Console            1   1,53,952 K
-		chrome.exe            5084 Console            1     45,620 K
-		chrome.exe            3496 Console            1      8,380 K
-		chrome.exe            9420 Console            1     10,572 K
-		chrome.exe            6008 Console            1      5,384 K
-		chrome.exe           12596 Console            1   2,53,768 K
-	chrome.exe           11576 Console            1   4,39,484 K
-
-	taskkill /IM chrome.exe /F (/IM = image name (the process executable))
-or
-	taskkill /PID 11936 /F	(/F = force kill)
-
-
-	type vim_globalTable_16Aug.txt | findstr /i "table"
-
-print out the contents of the file vim_globalTab .... inside the cmd
-piping into findstr which looks of the word 'table' (/i means case insensitive)
-
-	type vim_globalTable_16Aug.txt | findstr /i /r "\<table\>" 
-
-(all that is uniquely the word table and not a sequence of letters in another word (not datatable or defaulttable)
-
-	type vim_globalTable_16Aug.txt | findstr /i /r /v "\<table\>" 
-
-(all that is not 'table')
-
-
-
-
-
 wmic bios get smbiosbiosversion 'to find out the BIOS version
 ********************************************************************************************
 
@@ -98,6 +64,7 @@ systeminfo | find "Total Physical Memory"
 
 :: To convert bytes to gigabytes (GB), you divide by 1073741824 (which is 1024³, or 1024 * 1024 * 1024).
 :: Let's do the math: 8410963968 / 1073741824 = 7.83
+
 *********************************************************************************
 
 To check if your PC is 32-bit or 64-bit using Command Prompt (CMD), follow these steps:
@@ -174,8 +141,6 @@ Get information about the SSDd/HHds installed
 	wmic logicaldisk get name, filesystem, freespace, size, volumename
 	wmic diskdrive get model, size, interfaceType, mediaType
 	wmic logicaldisk get name, size, description
-
-	fsutil volume diskfree C: # use this in admin mode
 
 Get information about the GPU installed
 	wmic path win32_VideoController get name, adapterram, driverversion, status

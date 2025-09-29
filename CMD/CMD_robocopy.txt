@@ -57,7 +57,8 @@ robocopy C:\ImportantData D:\MirrorBackup /MIR /L
 :: Fast copy using 16 threads, skipping newer files
 robocopy C:\ProjectFiles Server\Backup /MT:16 /XO
 
-
+:: copies a folder and its content to the specified destionation and deletes the source folder and its contents
+robocopy "C:\Users\S10DIGITAL\Desktop\MollyBabu_Income" "D:\S10Digital\MollyBabu_Income" /E /COPY:DAT /R:2 /W:2 /MOVE
 
 *********************************************************************************************************
 

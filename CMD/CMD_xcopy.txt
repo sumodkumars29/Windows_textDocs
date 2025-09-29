@@ -9,6 +9,7 @@ xcopy C:\data D:\backup /E /H /C /I
 xcopy C:\MyData D:\Backup\MyData /S /E /I
 xcopy "C:\Users\Alice\Documents\*" "E:\DocBackup\" /S /Y
 xcopy *.txt NewFolder\ /I /L  # Dry run to see what would happen
+xcopy "C:\Users\S10DIGITAL\Desktop\MGS_Echallan-Status" "D:\MGS\MGS_Echallan-Status" /E /I /H /K
 
 /E → Copy all subdirectories, including empty ones.
 

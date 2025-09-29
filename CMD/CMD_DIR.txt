@@ -34,6 +34,8 @@ dir /a-d | findstr /v "Directory"
 
 /b - bare format (no heading info)
 
+/ad - show only directories
+
 /a-d - files only (exclude directories)
 
 /od - Sort by date (oldest first)
