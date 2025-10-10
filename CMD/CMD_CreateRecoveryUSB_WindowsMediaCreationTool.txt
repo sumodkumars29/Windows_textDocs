@@ -1,0 +1,29 @@
+To create a recovery USB using the Windows Media Creation Tool, follow these steps:
+
+1. Download the Media Creation Tool
+On a working Windows PC, visit the official Microsoft website:
+Windows 10 Media Creation Tool
+Windows 11 Media Creation Tool (if applicable).
+Click Download Now to download the Media Creation Tool.
+2. Prepare a USB Drive
+Insert a USB drive with at least 8 GB of storage (all data on the USB will be erased).
+Ensure it’s formatted as FAT32 (you can format it in File Explorer if needed).
+3. Run the Media Creation Tool
+Open the downloaded tool (e.g., MediaCreationTool20H2.exe).
+Accept the license terms.
+4. Choose to Create Installation Media
+Select Create installation media (USB flash drive, DVD, or ISO file) and click Next.
+Configure your preferences:
+Language: Default or as per your needs.
+Edition: Ensure it matches your current Windows version.
+Architecture: Choose 64-bit (or both if unsure).
+5. Select USB Flash Drive
+Choose USB flash drive as the media type and click Next.
+Select your USB drive from the list and click Next.
+6. Wait for the Tool to Create the Bootable USB
+The tool will download the necessary files and create a bootable recovery USB.
+This process may take 15–30 minutes, depending on your internet speed.
+7. Eject the USB Safely
+Once the process completes, eject the USB safely by right-clicking the USB drive in File Explorer and selecting Eject.
+
+You now have a bootable Windows recovery USB that you can use to fix the bootloader or reinstall Windows if necessary.
