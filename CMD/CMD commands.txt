@@ -1,4 +1,19 @@
-wmic bios get smbiosbiosversion 'to find out the BIOS version
+:: Windows version:
+	systeminfo | findstr /B /C:"OS Name" /C:"OS Version"
+
+:: Processor type
+	wmic cpu get Name,Manufacturer,MaxClockSpeed,NumberOfCores
+
+	:: Name → CPU model (e.g., Intel(R) Core(TM) i3-8100)
+	:: Manufacturer → Intel/AMD
+	:: MaxClockSpeed → MHz
+	:: NumberOfCores → Total cores
+
+********************************************************************************************
+
+	wmic bios get smbiosbiosversion 
+	:: to find out the BIOS version
+
 ********************************************************************************************
 
 type msinfo32 into Run	'to find of the system is using UEFI or BIOS (legacy)
@@ -23,44 +38,14 @@ If a Disk # does not have a * in its GPT column, then the disk is MBR.
 
 ********************************************************************************************
 
-To create a recovery USB using the Windows Media Creation Tool, follow these steps:
-
-1. Download the Media Creation Tool
-On a working Windows PC, visit the official Microsoft website:
-Windows 10 Media Creation Tool
-Windows 11 Media Creation Tool (if applicable).
-Click Download Now to download the Media Creation Tool.
-2. Prepare a USB Drive
-Insert a USB drive with at least 8 GB of storage (all data on the USB will be erased).
-Ensure it’s formatted as FAT32 (you can format it in File Explorer if needed).
-3. Run the Media Creation Tool
-Open the downloaded tool (e.g., MediaCreationTool20H2.exe).
-Accept the license terms.
-4. Choose to Create Installation Media
-Select Create installation media (USB flash drive, DVD, or ISO file) and click Next.
-Configure your preferences:
-Language: Default or as per your needs.
-Edition: Ensure it matches your current Windows version.
-Architecture: Choose 64-bit (or both if unsure).
-5. Select USB Flash Drive
-Choose USB flash drive as the media type and click Next.
-Select your USB drive from the list and click Next.
-6. Wait for the Tool to Create the Bootable USB
-The tool will download the necessary files and create a bootable recovery USB.
-This process may take 15–30 minutes, depending on your internet speed.
-7. Eject the USB Safely
-Once the process completes, eject the USB safely by right-clicking the USB drive in File Explorer and selecting Eject.
-
-You now have a bootable Windows recovery USB that you can use to fix the bootloader or reinstall Windows if necessary.
-
-********************************************************************************************
-
 :: The systeminfo command provides a huge amount of system data. 
 :: Ihe ' | find' part filters the output to show only the line containing the exact text "Total Physical Memory".
 
 :: Total Physical Memory: 16,114 MB (This means 16 GB)
 
 systeminfo | find "Total Physical Memory"
+systeminfo | findstr /C:"Total Physical Memory"
+wmic computersystem get TotalPhysicalMemory
 
 :: To convert bytes to gigabytes (GB), you divide by 1073741824 (which is 1024³, or 1024 * 1024 * 1024).
 :: Let's do the math: 8410963968 / 1073741824 = 7.83
@@ -85,57 +70,16 @@ Find the details of the physical drives on your PC
 	wmic diskdrive list brief	OR
 	wmic diskdrive get model,name,serialnumber,size,mediaType
 ********************************************************************************************
-To format a USB in CMD
-Type the following commands in sequence
-	diskpart
-	list disk	(result will be like Disk 0, Disk 1, Disk 2, ...)
-	select disk 0/1/2/..	(Choose the number of the disk the USB is assigned as)
-	clean	(erasing everything on the USB)
-	create partition primary
-	format fs=ntfs quick
-	assign letter=Y	(Replace Y with an available letter for the USB drive.)
-********************************************************************************************
+
 Find which graphics card is installed in windows pc using cmd
 
 	wmic path win32_VideoController get name
 
+:: more detail (like VRAM, driver version):
+	wmic path win32_videocontroller get name,adapterram,driverversion
+
 ********************************************************************************************
-This will remove temporary files stored in the user's temp folder and the system temp folder.
-	del /q /f /s %TEMP%\*
-	del /q /f /s C:\Windows\Temp\*
 
-This will clean up the unnecessary files in the C filesystem
-	cleanmgr
-
-1)When prompted, select your system drive (usually C:), and then in the Disk Cleanup dialog, click on Clean up system files.
-2)Check Windows Update Cleanup and other options like Temporary files and System error memory dump files.
-3)Click OK and then Delete Files to clean up the selected files.
-
-
-Run the following command to clean up the component store (which can get bloated with updates):
-	dism /online /cleanup-image /startcomponentcleanup
- For deeper cleaning of system files
-	dism /online /cleanup-image /startcomponentcleanup /resetbase
-
-Clean Windows Update Cache
-	net stop wuauserv
-	net stop bits
-	del /s /q /f C:\Windows\SoftwareDistribution\*
-	del /s /q /f C:\Windows\System32\catroot2\*
-	net start wuauserv
-	net start bits
-These commands stop the Windows Update services (wuauserv and bits), delete the update cache, and restart the services.
-
-Clear the DNS Cache
-	ipconfig /flushdns
-
-Clean the Prefetch Folder
-	del /s /q /f C:\Windows\Prefetch\*
-
-Remove Recycle Bin Files
-	rd /s /q C:\$Recycle.Bin
-
-*******************************************************************************************************************************
 Get information about the SSDd/HHds installed
 	wmic partition get name, size, type
 	wmic logicaldisk get name, filesystem, freespace, size, volumename
