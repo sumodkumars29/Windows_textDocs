@@ -1,0 +1,9 @@
+To format a USB in CMD
+Type the following commands in sequence
+	diskpart
+	list disk	(result will be like Disk 0, Disk 1, Disk 2, ...)
+	select disk 0/1/2/..	(Choose the number of the disk the USB is assigned as)
+	clean	(erasing everything on the USB)
+	create partition primary
+	format fs=ntfs quick
+	assign letter=Y	(Replace Y with an available letter for the USB drive.)
