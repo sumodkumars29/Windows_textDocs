@@ -1,0 +1,34 @@
+This will remove temporary files stored in the user's temp folder and the system temp folder.
+	del /q /f /s %TEMP%\*
+	del /q /f /s C:\Windows\Temp\*
+
+This will clean up the unnecessary files in the C filesystem
+	cleanmgr
+
+1)When prompted, select your system drive (usually C:), and then in the Disk Cleanup dialog, click on Clean up system files.
+2)Check Windows Update Cleanup and other options like Temporary files and System error memory dump files.
+3)Click OK and then Delete Files to clean up the selected files.
+
+
+Run the following command to clean up the component store (which can get bloated with updates):
+	dism /online /cleanup-image /startcomponentcleanup
+ For deeper cleaning of system files
+	dism /online /cleanup-image /startcomponentcleanup /resetbase
+
+Clean Windows Update Cache
+	net stop wuauserv
+	net stop bits
+	del /s /q /f C:\Windows\SoftwareDistribution\*
+	del /s /q /f C:\Windows\System32\catroot2\*
+	net start wuauserv
+	net start bits
+These commands stop the Windows Update services (wuauserv and bits), delete the update cache, and restart the services.
+
+Clear the DNS Cache
+	ipconfig /flushdns
+
+Clean the Prefetch Folder
+	del /s /q /f C:\Windows\Prefetch\*
+
+Remove Recycle Bin Files
+	rd /s /q C:\$Recycle.Bin
