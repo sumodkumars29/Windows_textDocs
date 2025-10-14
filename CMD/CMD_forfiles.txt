@@ -32,14 +32,33 @@ forfiles /p "%USERPROFILE%\Downloads" /m *.* /d -1 /c "cmd /c del @path"
 
 :: /d -1 - Files older than today
 
+:: Before running deletion, test it by listing what would be deleted:
+
+forfiles /p . /m *.* /d -1 /c "cmd /c echo @path"
+
+:: If the output looks correct, then re-run your original command to delete.
+
+forfiles /p . /m *.* /d -1 /c "cmd /c del @path"
+
+:: delete matching files inside subfolders too
+forfiles /p . /s /m *.* /d -1 /c "cmd /c del @path"
 
 
+:: Skip certain file types (e.g., keep .jpg or .exe files)
+:: Forfiles can only include, not exclude, directly so use a small logic tweak inside the cmd /c part.
 
+forfiles /p . /s /m *.* /d -1 /c "cmd /c if /I not \"@ext\"==\".jpg\" if /I not \"@ext\"==\".exe\" del @path"
 
+🔍 Breakdown
 
-
-
-
+/p . → start from the current directory
+/s → include subfolders
+/m *.* → target all files
+/d -1 → only files older than 1 day
+/c "cmd /c if /I not \"@ext\"==\".jpg\" if /I not \"@ext\"==\".exe\" del @path"
+@ext → the file’s extension (e.g., .jpg, .exe)
+if /I not → case-insensitive “not equal” comparison
+Only deletes if extension is not .jpg and is not .exe
 
 ************************************************************************************************
 cmd help info: forfiles /?
