@@ -49,6 +49,18 @@ forfiles /p . /s /m *.* /d -1 /c "cmd /c del @path"
 
 forfiles /p . /s /m *.* /d -1 /c "cmd /c if /I not \"@ext\"==\".jpg\" if /I not \"@ext\"==\".exe\" del @path"
 
+:: to delete only directories
+forfiles /p "%USERPROFILE%\Downloads" /s /d -1 /c "cmd /c if @isdir==TRUE rd /s /q @path"
+
+forfiles /p "%USERPROFILE%\Downloads" /s /m "*" /d -1 /c "cmd /c attrib -r -h -s @path & if @isdir==FALSE del /f /q @path"
+forfiles /p "%USERPROFILE%\Downloads" /s /d -1 /c "cmd /c if @isdir==TRUE attrib -r -h -s @path & rd /s /q @path"
+
+attrib -r -h -s @path → removes Read-only, Hidden, and System attributes.
+if @isdir==FALSE del /f /q @path → force-deletes files quietly.
+if @isdir==TRUE rd /s /q @path → removes folders and their contents quietly.
+/d -1 → targets items modified more than 1 day ago.
+
+
 🔍 Breakdown
 
 /p . → start from the current directory

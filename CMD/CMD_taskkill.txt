@@ -1,0 +1,160 @@
+Kill a process by PID (local, graceful):
+	taskkill /pid 1234
+
+Force kill a process by image name:
+	taskkill /f /im notepad.exe
+
+Kill a process and its children (tree):
+	taskkill /t /im example.exe
+
+Combine force + tree:
+	taskkill /f /t /im cmd.exe
+
+Kill multiple PIDs in same command:
+	taskkill /pid 1230 /pid 4567 /pid 7890
+
+Using filter to kill all processes over certain memory usage:
+	taskkill /f /fi "MEMUSAGE gt 100000"
+
+Kill remote process
+Suppose remote computer name is RemotePC, domain is MYDOMAIN, user admin, killing notepad remotely:
+	taskkill /s RemotePC /u MYDOMAIN\admin /p MyPassword /im notepad.exe
+
+Conditional kill: kill only if user is a certain name:
+	taskkill /f /fi "USERNAME eq JohnDoe" /im someapp.exe	
+
+Command doesn’t allow mixing identification methods directly. -> taskkill /pid 2545 /im winword.exe
+To kill both a specific PID and a process by name:
+	taskkill /pid 2545
+	taskkill /im winword.exe
+
+To do it in one line (in a batch script, for example):
+	taskkill /pid 2545 & taskkill /im winword.exe
+
+
+
+When targeting remote computers (/s <computer>), you must provide credentials via /u and /p (or be in a domain where your credentials allow remote access). 
+
+On remote systems, as noted, the kill is always “forceful” (regardless of /f).
+
+
+/s <computer>: Specifies a remote/computer name or IP (no backslashes) — target the command at a remote system. Default is the local system. 
+
+/u [<domain>\]<username>: Specifies the user context (account) under which the command will run (for remote connections). Only valid if /s is used (i.e. for remote). 
+
+/p [<password>]: The password for that user account (if remote). If omitted, you’ll be prompted. 
+Microsoft Learn
+
+/fi <filter>: Applies a filter to narrow down the set of tasks/processes to act on. You can use multiple /fi filters. 
+
+/pid <processID>: Terminate by the numeric process ID (PID). 
+
+/im <imagename>: Terminate by the image name (i.e. executable name, e.g. notepad.exe). Wildcards (*) allowed in certain cases. 
+The wildcard character (*) is accepted for /im when a filter is also used
+
+/f: Forcefully terminate the process. Doesn’t give it time to clean up. 
+
+/t: Also terminate the process tree — i.e. the specified process and any child processes it spawned.
+
+
+The filter mechanism is powerful; it lets you specify criteria for selecting which process(es) to kill. The general syntax:
+	taskkill /fi "<FilterName> <operator> <value>"
+You can use multiple /fi filters, and they are ANDed (i.e. all conditions must match).
+
+
+
+Here are valid Filter Names, operators, and valid values:
+
+Filter 	Name		Operators			Valid Value(s) / Description
+STATUS			eq, ne				RUNNING, NOT RESPONDING, UNKNOWN 
+IMAGENAME		eq, ne				The process executable name (e.g. notepad.exe) 
+PID			eq, ne, gt, lt, ge, le		numerical process ID 
+SESSION			eq, ne, gt, lt, ge, le		session number (Windows session) 
+CPUtime			eq, ne, gt, lt, ge, le		CPU time used by process (format HH:MM:SS) 
+MEMUSAGE		eq, ne, gt, lt, ge, le		Memory usage in KB 
+USERNAME		eq, ne				User name (domain\user) 
+SERVICES		eq, ne				A service name 
+WINDOWTITLE		eq, ne				Title of the window (text) 
+MODULES			eq, ne				DLL name (module loaded) 
+
+Examples:
+Kill all not responding applications:
+	taskkill /f /fi "STATUS eq NOT RESPONDING"
+
+Kill processes using more than 100,000 KB:
+	taskkill /f /fi "MEMUSAGE gt 100000"
+
+Kill processes by username “Alice”:
+	taskkill /fi "USERNAME eq Alice" /im someproc.exe
+
+
+***********************************************************************************************
+
+:: cmd help info: help taskkill
+
+TASKKILL [/S system [/U username [/P [password]]]]
+         { [/FI filter] [/PID processid | /IM imagename] } [/T] [/F]
+
+Description:
+    This tool is used to terminate tasks by process id (PID) or image name.
+
+Parameter List:
+    /S    system           Specifies the remote system to connect to.
+
+    /U    [domain\]user    Specifies the user context under which the
+                           command should execute.
+
+    /P    [password]       Specifies the password for the given user
+                           context. Prompts for input if omitted.
+
+    /FI   filter           Applies a filter to select a set of tasks.
+                           Allows "*" to be used. ex. imagename eq acme*
+
+    /PID  processid        Specifies the PID of the process to be terminated.
+                           Use TaskList to get the PID.
+
+    /IM   imagename        Specifies the image name of the process
+                           to be terminated. Wildcard '*' can be used
+                           to specify all tasks or image names.
+
+    /T                     Terminates the specified process and any
+                           child processes which were started by it.
+
+    /F                     Specifies to forcefully terminate the process(es).
+
+    /?                     Displays this help message.
+
+Filters:
+    Filter Name   Valid Operators           Valid Value(s)
+    -----------   ---------------           -------------------------
+    STATUS        eq, ne                    RUNNING |
+                                            NOT RESPONDING | UNKNOWN
+    IMAGENAME     eq, ne                    Image name
+    PID           eq, ne, gt, lt, ge, le    PID value
+    SESSION       eq, ne, gt, lt, ge, le    Session number.
+    CPUTIME       eq, ne, gt, lt, ge, le    CPU time in the format
+                                            of hh:mm:ss.
+                                            hh - hours,
+                                            mm - minutes, ss - seconds
+    MEMUSAGE      eq, ne, gt, lt, ge, le    Memory usage in KB
+    USERNAME      eq, ne                    User name in [domain\]user
+                                            format
+    MODULES       eq, ne                    DLL name
+    SERVICES      eq, ne                    Service name
+    WINDOWTITLE   eq, ne                    Window title
+
+    NOTE
+    ----
+    1) Wildcard '*' for /IM switch is accepted only when a filter is applied.
+    2) Termination of remote processes will always be done forcefully (/F).
+    3) "WINDOWTITLE" and "STATUS" filters are not considered when a remote
+       machine is specified.
+
+Examples:
+    TASKKILL /IM notepad.exe
+    TASKKILL /PID 1230 /PID 1241 /PID 1253 /T
+    TASKKILL /F /IM cmd.exe /T
+    TASKKILL /F /FI "PID ge 1000" /FI "WINDOWTITLE ne untitle*"
+    TASKKILL /F /FI "USERNAME eq NT AUTHORITY\SYSTEM" /IM notepad.exe
+    TASKKILL /S system /U domain\username /FI "USERNAME ne NT*" /IM *
+    TASKKILL /S system /U username /P password /FI "IMAGENAME eq note*"

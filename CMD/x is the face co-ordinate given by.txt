@@ -1,0 +1,57 @@
+x is the face co-ordinate given by OpenCV
+sx is the x co-ordinate for the selection to be passed to GIMP
+sy is the top selection co-ordinate fixed at 3 px
+W is the image width
+H is the height of the image
+sW is the required width of the selection to be passed to GIMP
+sH is the required height of the selection to be passed to GIMP
+fw is the face width given by OpenCV
+rE is the right edge of the image
+lE is the left edge of the image
+rfE is the right edge of the face
+lfE is the left edge of the face
+oppx is the distance from rfE to rE
+AR is the aspect ratio which is 815 : 1063
+th_AR is the target height in proportion to the width
+tw_AR is the target width in proportion to the height
+r_sW is the revised selection width to be passed to GIMP in the event the calculated sH overshoots the bottom edge of the image
+
+th_AR (Height-to-Width ratio) = H / W ​= 1063 / 815 = 1.303
+tw_AR (Width-to-Height ratio) = W / H = 815 / 1063 = 0.767
+
+oppx = W - (x + fw)
+ 
+compare x and oppx
+lessx = Min(x, oppx)
+
+if lessx = x and x > 180 then sx = x - 180
+if lessx = x and x <= 180 then sx = 3
+
+if lessx = oppx and oppx > 180 then sx = x - 180
+if lessx = oppx and oppx <= 180 then sx = x - (oppx-3)
+
+sW = fw + ((x - sx) * 2)
+sH = sW * th_AR
+
+if sH + y >= H then sH = H - (y + 3)
+
+r_sW = sH * tw_AR
+
+wDiff = sW - r_sW
+eachSideAdjustable = wDiff/2
+sx = sx + eachSideAdjustable
+sW = fw + ((x - sx) * 2)
+
+so the coordinates and measurements to be passed to GIMP will be sx, y, sW and sH
+
+
+
+
+
+
+	
+
+
+
+
+
