@@ -29,4 +29,15 @@ piping into findstr which looks of the word 'table' (/i means case insensitive)
 (all that is not 'table')
 
 
+:: findstr regex ≠ normal regex
+
+:: findstr uses a weird, limited regex engine.
+:: While in most regex systems \< and \> mean “word boundary,” in findstr, they only work on alphanumeric characters (A–Z, 0–9, and _).
+
+:: So: \<gimp\> matches gimp as a standalone word ✅
+
+:: but \<.exe\> fails ❌ because . is not a word character
+
+:: → it doesn’t recognize .exe as a valid word boundary match
+
 

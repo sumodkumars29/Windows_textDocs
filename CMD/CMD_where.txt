@@ -1,9 +1,24 @@
+:: Where searches for files that match a given name or pattern in directories listed in the PATH environment variable, or in any directories you specify
+:: Basic Syntax: 	
+	where [options] filename
+	where notepad.exe (Returns the full path to notepad.exe (e.g., C:\Windows\System32\notepad.exe))
+
+Search in a Specific Folder :
+	where /r C:\ filename
+::	/r → Recursively search in all subdirectories.
+
+:: Use with Wildcards
+	where *.exe
+
+	where /r D:\Projects *.py
+
+:: Find Multiple Files at Once
+	where notepad.exe cmd.exe calc.exe
 
 
-
-
-
-
+:: /r	Recursive search (as shown above).
+:: /t	Displays the size and date/time stamp of each found file.
+:: /q	Quiet mode – returns 0 if found, 1 if not (used in scripts).
 
 *************************************************************************************************
 cmd help info: where /?
