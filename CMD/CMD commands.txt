@@ -95,3 +95,35 @@ Get the processer name
 Get system informatiomn
 	systeminfo
 
+********************************************************************************************
+To List Printers
+
+	wmic printer get name, portname, systemname
+
+:: Name → The printer name Windows uses
+:: PortName → USB or TCP/IP port
+:: SystemName → Usually your PC’s hostname
+:: LAN printer: Has IP, shows as TCP/IP port, can be pinged/traced.
+:: USB printer: Has no IP, shows USB port like USB001.
+
+********************************************************************************************
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

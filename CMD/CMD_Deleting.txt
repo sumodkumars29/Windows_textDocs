@@ -16,6 +16,7 @@ Delete a folder (and everything inside) :			rmdir /s /q C:\path\to\folder
 To delete an empty directory :					rmdir C:\path\to\emptydir
 								rd C:\path\to\emptydir
 
+:: Can also use the FORFILES command
 
 forfiles /p "%USERPROFILE%\Downloads" /m *.* /d -1 /c "cmd /c del /f /q @path"
 :: /d -1 - Files older than today

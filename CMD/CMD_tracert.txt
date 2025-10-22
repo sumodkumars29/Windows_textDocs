@@ -1,0 +1,75 @@
+:: tracert (short for Trace Route) is a network diagnostic tool built into Windows that tracks the path your packets take to reach a destination (like a website, IP address, or another computer).
+:: It sends ICMP Echo Request packets (like ping) to the destination, but with a twist — it manipulates the TTL (Time To Live) field in the IP header.
+
+:: Here’s the breakdown:
+
+:: tracert sends the first packet with TTL = 1.
+:: The first router that receives it decrements TTL to 0 and discards it.
+:: That router replies with an ICMP “Time Exceeded” message — revealing its IP address.
+:: The next packet has TTL = 2 → it reaches one router further before timing out.
+:: The second router replies with another Time Exceeded message.
+:: This repeats, increasing TTL each time, until:
+:: The destination is reached (which replies with an ICMP Echo Reply), or
+:: The maximum TTL (default 30 hops) is reached.
+
+So what you get is a list of all intermediate routers — the path from your machine to the target host.
+
+
+:: Basic Syntax
+	tracert [options] target_name_or_IP
+
+:: Switches
+:: Switch		Meaning										Example
+:: /d			Do not resolve IP addresses to hostnames (faster).				tracert /d 8.8.8.8
+:: /h <maximum_hops>	Set the maximum number of hops to trace (default = 30).				tracert /h 20 google.com
+:: /w <timeout>		Wait time (in milliseconds) for each reply (default = 4000 ms).			tracert /w 1000 google.com
+:: /4			Force use of IPv4 only.								tracert /4 google.com
+:: /6			Force use of IPv6 only.								tracert /6 google.com
+:: /R			Record route for IPv6 (not IPv4) — 
+:: 			asks each node to add itself to the packet’s header (up to 9).			tracert /R ipv6.google.com
+:: /S <SourceAddr>	Use a specific source address (IPv6 only).					tracert /S 2001:0db8::1 ipv6.google.com
+:: /j <HostList>	Use a loose source route (IPv4 only) through a list of up to 9 hosts
+:: 			 — rare and often blocked.							tracert /j 192.168.1.1 10.0.0.1 8.8.8.8
+
+
+:: Notes on Switch Behavior
+
+:: /d is the most used switch because DNS lookups at every hop can significantly slow down tracing.
+:: /h is useful when you know your target is local (e.g., same city), so you don’t waste time waiting for 30 hops.
+:: /w is critical on slower or congested networks — increasing it helps avoid “request timed out” just due to latency.
+:: /R, /S, /j are advanced / rarely used, mostly for network engineering or IPv6 debugging.
+:: /4 and /6 are important when a hostname resolves to both IPv4 and IPv6 addresses, and you want to force one.
+
+
+:: Examples:
+:: Simple trace
+	tracert google.com
+
+:: Faster trace (skip DNS lookup)
+	tracert /d google.com
+
+:: Trace using IPv6
+	tracert /6 ipv6.google.com
+
+:: Trace with shorter hop limit (for local route testing)
+	tracert /h 10 192.168.1.1
+
+:: Trace with increased timeout (slow link)
+	tracert /w 8000 example.com
+
+
+************************************************************************************************
+cmd help info: CMD>tracert /?
+
+Usage: tracert [-d] [-h maximum_hops] [-j host-list] [-w timeout]
+               [-R] [-S srcaddr] [-4] [-6] target_name
+
+Options:
+    -d                 Do not resolve addresses to hostnames.
+    -h maximum_hops    Maximum number of hops to search for target.
+    -j host-list       Loose source route along host-list (IPv4-only).
+    -w timeout         Wait timeout milliseconds for each reply.
+    -R                 Trace round-trip path (IPv6-only).
+    -S srcaddr         Source address to use (IPv6-only).
+    -4                 Force using IPv4.
+    -6                 Force using IPv6.
