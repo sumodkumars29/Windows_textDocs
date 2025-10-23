@@ -1,0 +1,280 @@
+:: The wmic (Windows Management Instrumentation Command-line) tool is a CLI front-end to WMI.
+
+:: WMIC basic syntax:
+	wmic [global switches] [alias] [where clause] [verb] [parameters]
+
+:: 	Global switches: Apply to the wmic tool itself, not individual commands.
+:: 	Alias: Refers to WMI classes (like process, os, useraccount, etc.)
+:: 	Where clause: Filter results.
+:: 	Verb: The action to perform (get, list, call, etc.)
+:: 	Parameters: Extra arguments for the verb.
+
+
+:: Global switches
+:: 	Switch			Meaning
+:: 	/node:<name>		Connect to a remote computer.
+:: 	/user:<domain\user>	Specify user for remote connection.
+:: 	/password:<password>	Specify password for remote connection.
+:: 	/namespace:<namespace>	Specify a WMI namespace (default is root\cimv2).
+:: 	/role:<role>		Specify role (rarely used).
+:: 	/authority:<authority>	Specify authority for authentication.
+:: 	`/interactive:on	off`
+:: 	/output:<filename>	Redirect output to file.
+:: 	/format:<format>	Specify output format (list, table, csv, htable, etc.)
+
+
+:: Common WMIC aliases
+:: Aliases represent WMI classes. Some of the most used ones:
+
+:: os 			→ Operating system info
+	:: 	Caption 			– OS name
+	:: 	Version 			– Version number
+	:: 	BuildNumber 			– Build number
+	:: 	OSArchitecture 			– 32-bit/64-bit
+	:: 	SerialNumber 			– Windows serial
+	:: 	LastBootUpTime 			– Last boot time
+
+:: computersystem 	→ System info (RAM, CPU, name)
+	:: 	Name 				– Hostname
+	:: 	Manufacturer 			– Dell, HP, etc.
+	:: 	Model 				– System model
+	:: 	Domain 				– Domain/workgroup
+	:: 	TotalPhysicalMemory 		– RAM in bytes
+
+:: cpu 			→ CPU info: name, cores, clock speed
+	:: 	Name 				– CPU model
+	:: 	NumberOfCores 			– Physical cores
+	:: 	NumberOfLogicalProcessors 	– Threads
+	:: 	MaxClockSpeed 			– MHz
+
+:: bios 		→ BIOS info
+	:: 	Manufacturer 			– BIOS vendor
+	:: 	SMBIOSBIOSVersion 		– BIOS version
+	:: 	ReleaseDate 			– BIOS release
+
+:: logicaldisk 		→ Drives, partitions, free space
+	:: 	DeviceID 			– Drive letter
+	:: 	FileSystem 			– NTFS/FAT32
+	:: 	FreeSpace 			– Free bytes
+	:: 	Size 				– Total bytes
+	:: 	VolumeName 			– Label
+
+:: volume 		→ Volume info
+
+:: process 		→ Running processes
+	:: 	ProcessId 			– PID
+	:: 	Name 				– Executable name
+	:: 	CommandLine 			– Full command line
+	:: 	WorkingSetSize 			– Memory usage (bytes)
+
+:: service 		→ Windows services
+	:: 	Name 				– Service name
+	:: 	DisplayName 			– Friendly name
+	:: 	StartMode 			– Auto, Manual, Disabled
+	:: 	State 				– Running, Stopped
+
+:: nic 			→ Network adapters
+	:: 	Name 				– Adapter name
+	:: 	MACAddress 			– MAC
+	:: 	Speed 				– Interface speed
+	:: 	NetEnabled 			– True/False
+
+:: nicconfig 		→ Network adapter configuration
+:: startup 		→ Startup programs
+:: printer 		→ Installed printers
+:: product 		→ Installed software
+:: shadowcopy		→ Volume shadow copies
+:: groupuser		→ Users in groups
+:: environment		→ Environment variables
+:: pagefile		→ Pagefile settings
+:: logicaldisk		→ Drive letters, free/total space
+:: filesystem		→ Filesystem types
+:: useraccount 		→ Users on machine
+:: group 		→ Groups on machine
+
+
+:: Common verbs (actions)
+
+:: Verb				Description
+:: get <property>		Retrieve a property (e.g., wmic os get Caption, Version)
+:: list <format>		List objects in a format (list brief, list full, etc.)
+:: call <method>		Call a WMI method (e.g., wmic process call create "notepad.exe")
+:: where "<condition>"		Filter objects (e.g., wmic process where "name='notepad.exe'")
+:: delete			Delete an object Example: wmic service where "name='Spooler'" delete (careful!)
+:: set <property>=<value>	Modify a property
+:: associators			Show related WMI objects
+:: references			Show referencing objects
+:: path				Reference the WMI object path
+
+
+:: Output formats
+
+:: table 	→ Column format
+:: list 	→ Each property on a separate line
+:: csv 		→ Comma-separated
+:: htable 	→ HTML table
+:: rawxml 	→ Raw XML
+
+
+
+:: Example Commands:
+
+:: Get OS info:
+	wmic os get Caption,Version,OSArchitecture,SerialNumber
+
+:: Get CPU info:
+	wmic cpu get Name,NumberOfCores,NumberOfLogicalProcessors,MaxClockSpeed
+
+:: List all running processes (brief):
+	wmic process list brief
+
+:: Terminate a process:
+	wmic process where "name='notepad.exe'" call terminate
+
+:: List installed software:
+	wmic product get Name,Version,Vendor
+
+:: Get disk usage:
+	wmic logicaldisk get Name,Size,FreeSpace,FileSystem
+
+:: Get BIOS info:
+	wmic bios get Manufacturer,SMBIOSBIOSVersion,ReleaseDate
+
+:: List network adapters:
+	wmic nic get Name,MACAddress,Speed,NetEnabled
+
+:: List startup programs:
+	wmic startup get Caption,Command,User
+
+:: Query users:
+	wmic useraccount get Name,SID,Disabled,PasswordChangeable
+
+
+:: Output Formatting Examples:
+:: Table format:	wmic cpu get Name,MaxClockSpeed /format:table
+:: List format:	wmic logicaldisk list full
+:: CSV format:	wmic service get Name,StartMode /format:csv
+:: HTML format:	wmic process list brief /format:htable > processes.html
+
+***********************************************************************************************
+
+:: cmd help info: wmic /?
+
+WMIC is deprecated.
+
+[global switches] <command>
+
+The following global switches are available:
+/NAMESPACE           Path for the namespace the alias operate against.
+/ROLE                Path for the role containing the alias definitions.
+/NODE                Servers the alias will operate against.
+/IMPLEVEL            Client impersonation level.
+/AUTHLEVEL           Client authentication level.
+/LOCALE              Language id the client should use.
+/PRIVILEGES          Enable or disable all privileges.
+/TRACE               Outputs debugging information to stderr.
+/RECORD              Logs all input commands and output.
+/INTERACTIVE         Sets or resets the interactive mode.
+/FAILFAST            Sets or resets the FailFast mode.
+/USER                User to be used during the session.
+/PASSWORD            Password to be used for session login.
+/OUTPUT              Specifies the mode for output redirection.
+/APPEND              Specifies the mode for output redirection.
+/AGGREGATE           Sets or resets aggregate mode.
+/AUTHORITY           Specifies the <authority type> for the connection.
+/?[:<BRIEF|FULL>]    Usage information.
+
+For more information on a specific global switch, type: switch-name /?
+
+
+The following alias/es are available in the current role:p
+ALIAS                    - Access to the aliases available on the local system
+BASEBOARD                - Base board (also known as a motherboard or system board) management.
+BIOS                     - Basic input/output services (BIOS) management.
+BOOTCONFIG               - Boot configuration management.
+CDROM                    - CD-ROM management.
+COMPUTERSYSTEM           - Computer system management.
+CPU                      - CPU management.
+CSPRODUCT                - Computer system product information from SMBIOS.
+DATAFILE                 - DataFile Management.
+DCOMAPP                  - DCOM Application management.
+DESKTOP                  - User's Desktop management.
+DESKTOPMONITOR           - Desktop Monitor management.
+DEVICEMEMORYADDRESS      - Device memory addresses management.
+DISKDRIVE                - Physical disk drive management.
+DISKQUOTA                - Disk space usage for NTFS volumes.
+DMACHANNEL               - Direct memory access (DMA) channel management.
+ENVIRONMENT              - System environment settings management.
+FSDIR                    - Filesystem directory entry management.
+GROUP                    - Group account management.
+IDECONTROLLER            - IDE Controller management.
+IRQ                      - Interrupt request line (IRQ) management.
+JOB                      - Provides  access to the jobs scheduled using the schedule service.
+LOADORDER                - Management of system services that define execution dependencies.
+LOGICALDISK              - Local storage device management.
+LOGON                    - LOGON Sessions.
+MEMCACHE                 - Cache memory management.
+MEMORYCHIP               - Memory chip information.
+MEMPHYSICAL              - Computer system's physical memory management.
+NETCLIENT                - Network Client management.
+NETLOGIN                 - Network login information (of a particular user) management.
+NETPROTOCOL              - Protocols (and their network characteristics) management.
+NETUSE                   - Active network connection management.
+NIC                      - Network Interface Controller (NIC) management.
+NICCONFIG                - Network adapter management.
+NTDOMAIN                 - NT Domain management.
+NTEVENT                  - Entries in the NT Event Log.
+NTEVENTLOG               - NT eventlog file management.
+ONBOARDDEVICE            - Management of common adapter devices built into the motherboard (system board).
+OS                       - Installed Operating System/s management.
+PAGEFILE                 - Virtual memory file swapping management.
+PAGEFILESET              - Page file settings management.
+PARTITION                - Management of partitioned areas of a physical disk.
+PORT                     - I/O port management.
+PORTCONNECTOR            - Physical connection ports management.
+PRINTER                  - Printer device management.
+PRINTERCONFIG            - Printer device configuration management.
+PRINTJOB                 - Print job management.
+PROCESS                  - Process management.
+PRODUCT                  - Installation package task management.
+QFE                      - Quick Fix Engineering.
+QUOTASETTING             - Setting information for disk quotas on a volume.
+RDACCOUNT                - Remote Desktop connection permission management.
+RDNIC                    - Remote Desktop connection management on a specific network adapter.
+RDPERMISSIONS            - Permissions to a specific Remote Desktop connection.
+RDTOGGLE                 - Turning Remote Desktop listener on or off remotely.
+RECOVEROS                - Information that will be gathered from memory when the operating system fails.
+REGISTRY                 - Computer system registry management.
+SCSICONTROLLER           - SCSI Controller management.
+SERVER                   - Server information management.
+SERVICE                  - Service application management.
+SHADOWCOPY               - Shadow copy management.
+SHADOWSTORAGE            - Shadow copy storage area management.
+SHARE                    - Shared resource management.
+SOFTWAREELEMENT          - Management of the  elements of a software product installed on a system.
+SOFTWAREFEATURE          - Management of software product subsets of SoftwareElement.
+SOUNDDEV                 - Sound Device management.
+STARTUP                  - Management of commands that run automatically when users log onto the computer system.
+SYSACCOUNT               - System account management.
+SYSDRIVER                - Management of the system driver for a base service.
+SYSTEMENCLOSURE          - Physical system enclosure management.
+SYSTEMSLOT               - Management of physical connection points including ports,  slots and peripherals, and proprietary connections points.
+TAPEDRIVE                - Tape drive management.
+TEMPERATURE              - Data management of a temperature sensor (electronic thermometer).
+TIMEZONE                 - Time zone data management.
+UPS                      - Uninterruptible power supply (UPS) management.
+USERACCOUNT              - User account management.
+VOLTAGE                  - Voltage sensor (electronic voltmeter) data management.
+VOLUME                   - Local storage volume management.
+VOLUMEQUOTASETTING       - Associates the disk quota setting with a specific disk volume.
+VOLUMEUSERQUOTA          - Per user storage volume quota management.
+WMISET                   - WMI service operational parameters management.
+
+For more information on a specific alias, type: alias /?op
+
+CLASS     - Escapes to full WMI schema.
+PATH      - Escapes to full WMI object paths.
+CONTEXT   - Displays the state of all the global switches.
+QUIT/EXIT - Exits the program.
+
+For more information on CLASS/PATH/CONTEXT, type: (CLASS | PATH | CONTEXT) /?

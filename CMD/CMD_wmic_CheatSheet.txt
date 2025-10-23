@@ -1,0 +1,41 @@
+:: Alias		Description		Common Properties						Common Methods/Verbs				Example Commands
+
+:: os			Operating system info	Caption, Version, OSArchitecture, SerialNumber, LastBootUpTime	get, list					wmic os get Caption,Version,OSArchitecture,SerialNumber
+
+:: computersystem	System info		Name, Manufacturer, Model, Domain, TotalPhysicalMemory		get, list, set					wmic computersystem get Name,Manufacturer,Model,TotalPhysicalMemory
+
+:: cpu			CPU info		Name, NumberOfCores, NumberOfLogicalProcessors, MaxClockSpeed	get, list					wmic cpu get Name,NumberOfCores,MaxClockSpeed
+
+:: bios			BIOS info		Manufacturer, SMBIOSBIOSVersion, ReleaseDate			get, list					wmic bios get Manufacturer,SMBIOSBIOSVersion,ReleaseDate
+
+:: logicaldisk		Drives and partitions	DeviceID, FileSystem, FreeSpace, Size, VolumeName		get, list					wmic logicaldisk get DeviceID,FreeSpace,Size,FileSystem
+
+:: volume		Mounted volumes		DriveLetter, Label, Capacity, FreeSpace				get, list					wmic volume get DriveLetter,Label,Capacity,FreeSpace
+
+:: process		Running processes	ProcessId, Name, CommandLine, WorkingSetSize			get, list, call (create/terminate), where	wmic process where "name='notepad.exe'" call terminate
+
+:: service		Windows services	Name, DisplayName, StartMode, State				get, list, call (start/stop), delete		wmic service get Name,StartMode,State
+
+:: useraccount		Local users		Name, SID, Disabled, PasswordChangeable				get, list					wmic useraccount get Name,SID,Disabled
+
+:: group		Local groups		Name, SID, Domain						get, list					wmic group get Name,SID,Domain
+
+:: groupuser		Users in groups		GroupComponent, PartComponent					get, list					wmic groupuser list brief
+
+:: nic			Network adapters	Name, MACAddress, Speed, NetEnabled				get, list					wmic nic get Name,MACAddress,Speed,NetEnabled
+
+:: nicconfig		Adapter config		IPAddress, DefaultIPGateway, DHCPEnabled, DNSServerSearchOrder	get, list					wmic nicconfig get Description,IPAddress,DHCPEnabled
+
+:: startup		Startup programs	Caption, Command, User						get, list					wmic startup get Caption,Command,User
+
+:: printer		Installed printers	Name, PortName, Default						get, list					wmic printer get Name,PortName,Default
+
+:: product		Installed software	Name, Version, Vendor						get, list					wmic product get Name,Version,Vendor
+
+:: shadowcopy		Volume shadow copies	ID, VolumeName, CreationTime					get, list					wmic shadowcopy get ID,VolumeName,CreationTime
+
+:: environment		Environment variables	Name, VariableValue						get, list					wmic environment get Name,VariableValue
+
+:: pagefile		Pagefile settings	Name, InitialSize, MaximumSize					get, list, set					wmic pagefile list /format:list
+
+:: filesystem		File system types	Name, FileSystem, DriveType					get, list					wmic filesystem get Name,FileSystem,DriveType
