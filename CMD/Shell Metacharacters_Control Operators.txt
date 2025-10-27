@@ -1,0 +1,112 @@
+
+1. Redirection Operators (Input/Output)
+These operators control where the input of a command comes from and where its output goes.
+
+	> : Standard Output Redirection (Write). Creates a new file or overwrites an existing one.
+		ls > file_list.txt
+
+	>> : Append Standard Output. Appends to the end of a file, or creates it if it doesn't exist.
+		echo "New line" >> logfile.txt
+
+	< : Standard Input Redirection. Reads a file's content as input for a command.
+		sort < unsorted_list.txt
+
+	&> or >& (in bash): Redirect both Standard Output and Standard Error.
+		my_script &> output_and_errors.log
+
+	2> : Standard Error Redirection. Redirects only error messages to a file.
+		grep "something" * 2> errors.txt
+
+	2>> : Append Standard Error. Appends error messages to a file.
+
+	&>> (in bash): Append both Standard Output and Standard Error.
+
+	<> : Read and Write Redirection. Opens a file for both reading and writing as standard input. (This one is rare).
+
+2. Pipeline Operator
+| : Pipe. Takes the standard output of one command and uses it as the standard input for the next.
+
+	cat file.txt | grep "keyword" | sort
+
+3. Sequence Control Operators
+These control the order and conditional execution of commands.
+
+	; : Command Separator. Runs commands sequentially, one after the other, regardless of whether the previous command succeeded or failed.
+
+		echo "Hello"; ls; echo "Done"
+
+	&& : Logical AND. Runs the next command only if the previous command succeeded (exited with a status of 0).
+
+		mkdir new_folder && cd new_folder (It only cds if the mkdir was successful).
+
+	|| : Logical OR. Runs the next command only if the previous command failed (exited with a non-zero status).
+
+		ping -c1 server || echo "Server is down"
+
+	& : Background Job. Runs a command in the background, immediately returning you to the shell prompt.
+
+		long_running_process &
+
+4. Process and Job Control
+	& : As mentioned above, for running jobs in the background.
+
+	% : (In shells like bash/zsh) Used to refer to jobs by their job number (e.g., %1, %2).
+
+	$! : Special Variable, not an operator, but related. It holds the Process ID (PID) of the last background command.
+
+5. Grouping and Execution Operators
+	( ) : Subshell Grouping. Commands inside parentheses run in a separate subshell. Variables changed inside won't affect the parent shell.
+
+		(cd /tmp && ls)
+
+	{ } : Current Shell Grouping. Commands inside braces run in the current shell environment. A space after the opening brace and a semicolon before the closing brace are required.
+
+	{ echo "Start"; cat file; } > log.txt
+
+6. Other Powerful Metacharacters
+	* : Wildcard/Glob. Matches any string of characters. (ls *.txt)
+
+	? : Wildcard/Glob. Matches any single character. (ls file?.txt)
+
+	~ : Home Directory. Expands to the path of your home directory. (cd ~/Documents)
+
+	# : Comment. Everything that follows on the line is ignored by the shell.
+
+	$ : Variable Expansion. Used to get the value of a variable. (echo $HOME)
+
+	\ : Escape Character. The next character is taken literally, stripping it of its special meaning.
+
+	echo "The cost is $5.00" # $5 might be interpreted as a variable.
+
+	echo "The cost is \$5.00" # Correct, prints a literal $.
+
+echo.> filename.txt
+	echo. → outputs a blank line. Using a dot after echo is a trick to echo a blank line (could also be echo but the dot is safer).
+	> filename.txt → redirects that blank line into filename.txt, overwriting any existing content.
+	Spacing is flexible: echo.>filename.txt works the same as echo. > filename.txt. CMD mostly ignores spaces after >, but before > matters because it’s part of the preceding token.
+
+copy nul filename.txt >nul
+	copy nul filename.txt → nul is a special file in Windows that represents “nothing” (like /dev/null in Unix). This command essentially creates an empty file called filename.txt.
+	>nul → redirects the output of the command to nul (so you don’t see the 1 file(s) copied message).
+	Note: no space before nul because that’s the argument of the redirection operator >.
+
+
+Operator		Meaning									Example							Notes
+>			Redirect stdout to a file (overwrite)			echo Hello > file.txt				Creates/overwrites file.txt with Hello
+>>			Redirect stdout to a file (append)			echo Hello >> file.txt				Adds Hello at the end of file.txt
+<			Redirect input from a file					sort < file.txt						Reads lines from file.txt instead of keyboard
+2>			Redirect stderr (errors)					dir notexist 2> errors.txt			Saves error messages to errors.txt
+2>>			Append stderr							dir notexist 2>> errors.txt			Adds errors to errors.txt instead of overwriting
+1>			Redirect stdout explicitly					echo Hi 1> out.txt					Same as >; sometimes used with 2>
+&> or >&	Redirect both stdout and stderr				command > all.txt 2>&1			Windows CMD standard way to combine outputs
+`			`										Pipe stdout to another command	`dir
+`													`								Run next command if previous fails
+&&			Run next command if previous succeeds		dir existing && echo Success		echo Success only runs if dir works
+> (nul)		Redirect output to null (discard)				dir > nul							Suppresses output completely
+
+
+Extra Notes
+
+> before a file must not be spaced from the filename in some cases (echo hi>file.txt works).
+2>&1 → merges stderr (2) into stdout (1), so both go to the same destination.
+Piping only works with stdout (| sends stdout to next command). Errors go through stderr unless redirected.

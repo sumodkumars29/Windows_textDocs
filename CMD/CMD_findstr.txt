@@ -1,3 +1,442 @@
+******************************************* FINDSTR ***********************************************
+
+:: Basic search
+
+	findstr "error" logfile.txt
+
+:: 	Searches logfile.txt for any line containing the word “error”
+:: 	Output = entire line(s) containing the match.
+
+******************************************* FINDSTR ***********************************************
+
+:: Case-insensitive search
+	findstr /i "error" logfile.txt
+
+::	/i → ignore case (error, Error, ERROR all match)
+
+******************************************* FINDSTR ***********************************************
+
+:: Official syntax:
+:: 	FINDSTR [options] "search_string(s)" [file(s)]
+
+:: or when used with a pipe:
+:: 	command | FINDSTR [options] "search_string(s)"
+
+:: Component breakdown:
+:: Component		Meaning
+:: FINDSTR		The command itself.
+:: options		One or more flags that modify search behavior (e.g. /i, /r, /s).
+:: "search_string(s)"	One or more space-separated search patterns (can include regex). 
+:: 			Must be quoted if you have spaces.
+:: [file(s)]		Optional — file(s) or wildcard pattern(s) to search in (*.log, C:\path\*.txt, etc.). 
+:: 			If omitted, it expects input from a pipe.
+
+******************************************* FINDSTR ***********************************************
+
+:: All available switches (options):
+:: Switch		Description
+:: /B		Match only if the pattern is at the beginning of a line (like ^pattern).
+:: /E		Match only if the pattern is at the end of a line (like pattern$).
+:: /L		Treat the search string literally, not as a regular expression.
+:: /R		Treat the search string as a regular expression (this is default behavior).
+:: /S		Search all subdirectories recursively (when files are specified).
+:: /I		Ignore case when matching.
+:: /X		Exact match — only lines that match the entire pattern. Equivalent to regex ^pattern$.
+:: /V		Invert match — show only lines that do NOT match the pattern.
+:: /N		Prefix each matching line with its line number.
+:: /M		Print only the filename of files that contain a match (no line content).
+:: /O		Prefix each line with its character offset (position of the match).
+:: /P		Skip non-printable files (useful for binary data).
+:: /F:file	Read the list of files to search from another file (one filename per line).
+:: /C:string	Use the string literally as a search term (useful if it has spaces or symbols).
+:: /G:file	Read search strings from another file (each line = one search string).
+:: /D:dirlist	Search in a list of directories, separated by semicolons.
+:: /T		Print the name of each file before displaying its matched lines. (legacy, works with some cmd builds)
+
+******************************************* FINDSTR ***********************************************
+
+We have a file called server.log with these contents:
+
+[INFO] Server started successfully
+[DEBUG] Listening on port 8080
+[WARNING] Connection slow from 192.168.0.5
+[ERROR] Timeout occurred
+[INFO] Request handled successfully
+
+AND a folder structure like:
+
+C:\Logs\
+    server.log
+    archive\old_server.log
+    archive\testdata.log
+
+/I — Case-insensitive search
+
+Example:
+
+	findstr /i "error" server.log
+
+Output: [ERROR] Timeout occurred
+
+✅ Matches [ERROR] Timeout occurred
+✅ Would also match “Error” or “ERROR” if case differs.
+
+******************************************* FINDSTR ***********************************************
+
+We have a file called server.log with these contents:
+
+[INFO] Server started successfully
+[DEBUG] Listening on port 8080
+[WARNING] Connection slow from 192.168.0.5
+[ERROR] Timeout occurred
+[INFO] Request handled successfully
+
+AND a folder structure like:
+
+C:\Logs\
+    server.log
+    archive\old_server.log
+    archive\testdata.log
+
+/V — Invert match (show lines without match)
+
+Example:
+
+ 	findstr /v "DEBUG" server.log
+
+Output: [INFO] Server started successfully
+	[WARNING] Connection slow from 192.168.0.5
+	[ERROR] Timeout occurred
+	[INFO] Request handled successfully
+
+✅ Shows all lines except the one containing [DEBUG].
+👉 Great for filtering out noise like debug or info logs.
+
+******************************************* FINDSTR ***********************************************
+
+We have a file called server.log with these contents:
+
+[INFO] Server started successfully
+[INFO] Server starting successfully
+[INFO] Server prepped to start
+[WARNING] Server starting slowly
+[DEBUG] Listening on port 8080
+[WARNING] Connection slow from 192.168.0.5
+[ERROR] Timeout occurred
+[INFO] Request handled successfully
+
+AND a folder structure like:
+
+C:\Logs\
+    server.log
+    archive\old_server.log
+    archive\testdata.log
+
+/N — Show line numbers
+
+Example:
+
+ 	findstr /n "INFO" server.log
+
+Output: 1:[INFO] Server started successfully
+	5:[INFO] Request handled successfully
+
+👉 Adds context when you need to reference line positions in scripts or debugging.
+
+******************************************* FINDSTR ***********************************************
+
+[INFO] Server started successfully
+[INFO] Server starting successfully
+[INFO] Server prepped to start
+[WARNING] Server starting slowly
+[DEBUG] Listening on port 8080
+[WARNING] Connection slow from 192.168.0.5
+[ERROR] Timeout occurred
+[INFO] Request handled successfully
+START
+
+/B and /E — Match at beginning or end of line
+
+Example:
+
+ 	findstr /b ".[ERROR]" server.txt
+
+Output: [ERROR] Timeout occurred
+
+Using the '.' wildcard character because windows seems to add some invisible character to the start of the line.	
+	findstr /b /n ".[ERROR]" server.txt
+
+Output: 7:[ERROR] Timeout occurred
+
+	findstr /e "successfully" server.txt
+
+Output:	[INFO] Server started successfully
+	[INFO] Server starting successfully
+	[INFO] Request handled successfully
+
+******************************************* FINDSTR ***********************************************
+
+[INFO] Server started successfully
+[INFO] Server starting successfully
+[INFO] Server prepped to start
+[WARNING] Server starting slowly
+[DEBUG] Listening on port 8080
+[WARNING] Connection slow from 192.168.0.5
+[ERROR] Timeout occurred
+[INFO] Request handled successfully
+START
+
+/L vs /R — Literal vs Regex search
+Default = /R (regex mode).
+
+Example:
+
+
+Regex example:
+
+ 	findstr "port [0-9][0-9]*" server.txt
+
+Output: [DEBUG] Listening on port 8080
+✅ Matches 'port 8080'
+
+Literal example (no regex interpretation):
+
+ 	findstr /l "port [0-9][0-9]*" server.log
+
+Output: nothing
+✅ Matches nothing, because it looks for the literal characters [0-9][0-9]*.
+👉 Use /L if your search term includes characters like . * [ ] that shouldn’t be treated as regex.
+
+******************************************* FINDSTR ***********************************************
+
+/S — Search subdirectories recursively
+
+	findstr /s /i "timeout" *.log
+
+✅ Searches all .log files in current directory and subfolders.
+👉 Works with wildcards; recursion is often paired with /i.
+
+******************************************* FINDSTR ***********************************************
+
+/M — Show only filenames with matches
+
+	findstr /m "ERROR" *.log
+
+Useful when scanning huge sets of files to find which ones contain the pattern — much faster than printing all lines.
+
+******************************************* FINDSTR ***********************************************
+
+[INFO] Server started successfully
+[INFO] Server starting successfully
+[INFO] Server prepped to start
+[WARNING] Server starting slowly
+[DEBUG] Listening on port 8080
+[WARNING] Connection slow from 192.168.0.5
+[ERROR] Timeout occurred
+[INFO] Request handled successfully
+START
+
+/O — Show character offset
+
+Example:
+	findstr /o "Server" server.txt
+
+Output: 0:[INFO] Server started successfully
+	36:[INFO] Server starting successfully
+	73:[INFO] Server prepped to start
+	105:[WARNING] Server starting 2 slowly
+
+
+	findstr /n /o "Server" server.txt
+Output: 1:0:[INFO] Server started successfully
+	2:36:[INFO] Server starting successfully
+	3:73:[INFO] Server prepped to start
+	4:105:[WARNING] Server starting 2 slowly
+
+******************************************* FINDSTR ***********************************************
+
+/P — Skip non-printable files
+
+	findstr /p "ERROR" *.*
+
+✅ Skips files with binary data (no weird output or beeps).
+👉 Combine with /s to safely search big directories.
+
+******************************************* FINDSTR ***********************************************
+[INFO] Server started successfully
+[INFO] Server starting successfully
+[INFO] Server prepped to start
+[WARNING] Server starting slowly
+[DEBUG] Listening on port 8080
+[WARNING] Connection slow from 192.168.0.5
+[ERROR] Timeout occurred
+[INFO] Request handled successfully
+START
+
+/C: — Literal string (even if it has spaces or slashes)
+
+Example:
+	findstr "Server started" server.txt
+
+Outpur: [INFO] Server started successfully
+	[INFO] Server starting successfully
+	[INFO] Server prepped to start
+	[WARNING] Server starting 2 slowly
+
+Without /C:, multiple words are treated as separate patterns:
+This searches for either “Server” or “started”, not both together
+
+To treat it as a single phrase:
+	
+	findstr /n /o /c:"Server started" server.txt
+
+Output: 1:0:[INFO] Server started successfully
+
+✅ Matches only the full phrase “Server started”.
+👉 /C: is critical when searching for multi-word phrases.
+
+******************************************* FINDSTR ***********************************************
+
+/G: — Read multiple search terms from a file
+
+Say you have a list of search terms (one item per line) saved in a file named pattern.txt.
+You can use that file as a search legend - search for the terms saved in 'pattern.txt' in the targeted file.
+
+Example:
+	findstr /i /g:patterns.txt server.txt
+
+✅ Matches any line containing any of the terms in patterns.txt.
+👉 Powerful for bulk searches or keyword lists.
+
+******************************************* FINDSTR ***********************************************
+
+/F: — Read list of files to search from another file
+
+You have a file name 'filelist.txt' that contains a list of file names (new line separated).
+
+	findstr /i /f:filelist.txt "timeout"
+
+Searches for the term "timeout" in the list of files, the names of which are stored in filelist.txt
+
+
+******************************************* FINDSTR ***********************************************
+
+/D: — Search multiple directories (semicolon-separated)
+
+	findstr /d:"C:\Logs;D:\BackupLogs" /s "ERROR" *.log
+
+✅ Searches recursively for "ERROR" in both directories.
+
+******************************************* FINDSTR ***********************************************
+
+Combining switches:
+
+	findstr /s /i /n /c:"timeout occurred" server.txt
+
+	/s → recursive
+	/i → ignore case
+	/n → show line numbers
+	/c: → treat entire phrase literally
+
+
+
+	findstr /v /i /r /n "debug" server.txt | findstr /v /i "info"	
+	findstr /virn "debug" server.txt | findstr /vi "info"
+
+******************************************* FINDSTR ***********************************************
+
+Basics of findstr regex
+Regex	Meaning
+.		Any single character
+*		Zero or more of the preceding character (not “everything”)
+^		Start of line
+$	End of line
+[abc]	Character class: matches any one of a, b, or c
+[^abc]	Negated character class: matches any character except a, b, or c
+\	Escape (rarely works consistently)
+
+Important:
+findstr does not support full alternation (|), groups () or + as in Perl-style regex.
+Quantifiers like {1,3} or ? don’t exist.
+It’s mostly single-character operations plus * repetition.
+
+How * works in findstr
+	findstr "o*" file.txt
+Matches zero or more of the preceding character (o), not “any string of characters.”
+
+	findstr /r "^START.*" server.txt
+^ → start of line
+START → literal
+.* → zero or more characters until line end
+
+
+Character classes
+
+[a-z] → matches lowercase letters
+
+[A-Z] → uppercase letters
+
+[0-9] → digits
+
+[A-Za-z0-9] → letters and digits
+
+[^0-9] → anything except digits
+
+Example: match all IP addresses:
+		findstr /r "[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*" server.log
+
+[0-9] → any number
+* → repeated any number of times
+\ → escape for the '.' regex character
+ . → the literal '.' dot character
+
+
+Anchors
+
+^ → beginning of line
+
+$ → end of line
+
+	findstr /r "^START" server.txt
+Lines starting with START.
+	findstr /r "successfully$" server.txt
+Lines ending with successfully.
+
+
+Escaping special characters
+
+findstr treats most symbols literally unless part of regex: . ^ $ * [ ].
+
+Escape with \ sometimes works, but inconsistent — 
+better to use /l if you want literal matches with special chars.
+
+	findstr /l "[INFO]" server.txt
+Matches literal [INFO], not “any I, N, F, O in brackets”.
+
+If you need “match A or B,” you must chain findstr commands with pipes:
+
+	findstr /i "ERROR" server.log | findstr /i "TIMEOUT"
+
+Or invert matches multiple times:
+
+	findstr /vi "DEBUG" server.txt | findstr /vi "INFO"
+
+Multi-word patterns
+Spaces separate different search strings unless you use /c:"pattern":
+
+	findstr /c:"Server started" server.txt
+
+	Matches the full literal phrase, spaces included.
+	If using /r, spaces are treated literally — not as word boundaries.
+
+	
+
+
+******************************************* FINDSTR ***********************************************
+
+
+******************************************************************************************************************************
+
 	tasklist | findstr /i chrome (/i - case insensitive)
 
 		chrome.exe            8788 Console            1   2,24,384 K
@@ -41,3 +480,56 @@ piping into findstr which looks of the word 'table' (/i means case insensitive)
 :: → it doesn’t recognize .exe as a valid word boundary match
 
 
+
+************************************************************************************************
+cmd help info:  findstr /?
+Searches for strings in files.
+
+FINDSTR [/B] [/E] [/L] [/R] [/S] [/I] [/X] [/V] [/N] [/M] [/O] [/P] [/F:file]
+        [/C:string] [/G:file] [/D:dir list] [/A:color attributes] [/OFF[LINE]]
+        strings [[drive:][path]filename[ ...]]
+
+  /B         Matches pattern if at the beginning of a line.
+  /E         Matches pattern if at the end of a line.
+  /L         Uses search strings literally.
+  /R         Uses search strings as regular expressions.
+  /S         Searches for matching files in the current directory and all
+             subdirectories.
+  /I         Specifies that the search is not to be case-sensitive.
+  /X         Prints lines that match exactly.
+  /V         Prints only lines that do not contain a match.
+  /N         Prints the line number before each line that matches.
+  /M         Prints only the filename if a file contains a match.
+  /O         Prints character offset before each matching line.
+  /P         Skip files with non-printable characters.
+  /OFF[LINE] Do not skip files with offline attribute set.
+  /A:attr    Specifies color attribute with two hex digits. See "color /?"
+  /F:file    Reads file list from the specified file(/ stands for console).
+  /C:string  Uses specified string as a literal search string.
+  /G:file    Gets search strings from the specified file(/ stands for console).
+  /D:dir     Search a semicolon delimited list of directories
+  /Q:qflags  Quiet mode flags:
+             u           Suppress warning about unsupported Unicode formats
+  strings    Text to be searched for.
+  [drive:][path]filename
+             Specifies a file or files to search.
+
+Use spaces to separate multiple search strings unless the argument is prefixed
+with /C.  For example, 'FINDSTR "hello there" x.y' searches for "hello" or
+"there" in file x.y.  'FINDSTR /C:"hello there" x.y' searches for
+"hello there" in file x.y.
+
+Regular expression quick reference:
+  .        Wildcard: any character
+  *        Repeat: zero or more occurrences of previous character or class
+  ^        Line position: beginning of line
+  $        Line position: end of line
+  [class]  Character class: any one character in set
+  [^class] Inverse class: any one character not in set
+  [x-y]    Range: any characters within the specified range
+  \x       Escape: literal use of metacharacter x
+  \<xyz    Word position: beginning of word
+  xyz\>    Word position: end of word
+
+For full information on FINDSTR regular expressions refer to the online Command
+Reference.

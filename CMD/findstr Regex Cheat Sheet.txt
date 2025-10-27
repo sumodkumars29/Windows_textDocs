@@ -1,0 +1,189 @@
+findstr Regex Cheat Sheet (Windows CMD)
+
+1️⃣ Basic Syntax
+
+	findstr [options] "pattern" [file(s)]
+
+Options: /i, /r, /v, /x, /s, etc.
+Pattern: regex (default) or literal if /l or /c: used
+Files: one or more files, wildcards allowed (*.log)
+Pipe input: can accept command | findstr ...
+
+
+2️⃣ Anchors
+
+Symbol	Meaning		Example
+^		Start of line	findstr /r "^START" server.txt → lines beginning with START
+$		End of line	findstr /r "successfully$" server.txt → lines ending with successfully
+
+Quirk: $ also matches EOF even if the last line has no newline. /x does not.
+
+
+3️⃣ Wildcards and Repetition
+Symbol	Meaning										Example
+.		Any single character							findstr /r "t.st" file.txt → matches test, tast, etc.
+*		Repeat previous character zero or more times	findstr /r "o*" → zero or more os;  (for “any chars” use .*)
+
+Important: * repeats only the previous char, not the whole expression.
+
+✅ Example: match anything after START
+
+	findstr /r "^START.*" server.txt
+
+
+4️⃣ Character Classes
+Pattern		Meaning					Example
+[abc]		Match any one char in set	[Ee]rror → matches Error or error
+[^abc]		Match any char not in set	[^0-9] → any non-digit
+[a-zA-Z0-9]	Letters and digits			[0-9]* → zero or more digits
+
+Quirk: ranges like [a-z] are literal ASCII ranges; no Unicode matching.
+
+
+5️⃣ Literal vs Regex
+
+Literal search: 	/l or /c:"pattern"
+
+Regex search: 	/r (default)
+
+Example literal search with special chars:
+
+	findstr /l "[INFO]" server.txt
+
+	Matches exactly [INFO], not “any char in brackets”.
+
+Example regex:
+
+	findstr /r "^\[INFO\].*successfully$" server.txt
+
+	Matches lines starting with [INFO] and ending with successfully
+
+
+6️⃣ Multi-word Patterns
+
+Spaces separate different search strings unless /c: is used
+
+	findstr "Server started" server.txt
+
+	Matches lines containing Server OR started, not both
+
+	findstr /c:"Server started" server.txt
+
+	Matches lines containing the exact phrase
+
+
+7️⃣ Alternation (OR)
+
+| does NOT work in findstr
+
+To simulate OR, pipe multiple findstr commands:
+
+	findstr /i "ERROR" server.log | findstr /i "TIMEOUT"
+
+
+To exclude multiple words:
+
+	findstr /vi "DEBUG" server.txt | findstr /vi "INFO"
+
+8️⃣ Common Anchored Examples
+Goal											Command
+Match lines starting with [WARNING]				findstr /r "^\[WARNING\]" server.txt
+Match lines ending with successfully					findstr /r "successfully$" server.txt
+Match [INFO] lines containing Server					findstr /r "^\[INFO\].*Server" server.txt
+Match lines that are exactly START (even at EOF)		findstr /r "^START$" server.txt
+
+9️⃣ Special Quirks
+Issue					Explanation									Solution
+/x fails on last line			/x expects line to end with CRLF					Use /r "^pattern$" or append newline
+`						` alternation ignored							findstr doesn’t support OR
+* behavior				Only repeats previous char, not “any string”		Use .* for any number of any chars
+Spaces in search			Treated as multiple patterns					Use /c:"phrase with spaces"
+
+🔟 Recommended Switches with Regex
+Switch		When to Use
+/r			Regex matching (default), needed for ^, $, . and *
+/i			Case-insensitive
+/v			Invert match (exclude lines)
+/n			Show line numbers
+/c:"pattern"	Search literal phrase with spaces or special chars
+/s			Search recursively in subfolders
+/x			Exact line match (beware of EOF issues)
+
+1️⃣1️⃣ Example Full Pipelines
+Exclude DEBUG and INFO, number lines
+	findstr /vi "DEBUG" server.txt | findstr /vi "INFO" | findstr /n "."
+
+Match [WARNING] or [ERROR] lines, ignore case, recursive
+	findstr /s /i /r "^\[WARNING\].* ^\[ERROR\].*" *.log
+
+
+	Note: you need two separate findstr commands or a literal list file because | won’t work.
+
+Match multi-word phrase exactly
+	findstr /c:"Server started successfully" server.txt
+
+
+
+🗺️ Findstr Switch Interaction Map
+
+Switch		Works With Regex?			Works With /x (Exact)?					Case-insensitive?			EOF Last Line						CRLF Line Endings				Notes / Gotchas
+/r			✅ Yes						⚠️ Only affects interpretation of regex		❌						✅								✅								Enables regex mode, allows ^, $, . and *. Default behavior.
+/i			✅ Works with regex			✅ Works with /x							✅ Ignores letter case		✅								✅								Only affects letters, not spaces, special chars, or CRLF.
+/x			⚠️ Can combine with /r		✅ Matches entire line literally				✅ Works if /i added		❌ Fails if last line has no newline	✅ Requires CRLF to count line		Very literal, line must end with \n to match; EOF without newline breaks it.
+/l			❌ Ignores regex				✅ Works with /x							✅ Works with /i			✅								✅								Treats pattern literally. Best for special chars.
+/c:"string"	❌ Ignores regex				✅ Works with /x							✅ Works with /i			✅								✅								Treats multi-word phrases literally; spaces included.
+/v			✅ Works	✅ Works		✅ Works with /i							✅						✅								✅								Inverts matches; depends on actual pattern match — fails if regex is misused
+/n			✅ Works	✅ Works		✅ Works								✅						✅								✅								Only prints line numbers, doesn’t affect matches.
+/s			✅ Works	✅ Works		✅ Works								✅						✅								✅								Searches subdirectories; works with wildcards.
+/m			✅ Works	✅ Works		✅ Works								✅						✅								✅								Only prints filenames containing match, ignores actual line content.
+/o			✅ Works	✅ Works		✅ Works								✅						✅								✅								Prefixes character offset of match. Useful with /r or /i.
+/p			✅ Works	✅ Works		✅ Works								✅						✅								✅								Skips non-printable files; safe for directories with binaries.
+/f:file		✅ Works	✅ Works		✅ Works								✅						✅								✅								Reads list of files from another file.
+/g:file		✅ Works	✅ Works		✅ Works								✅						✅								✅								Reads list of patterns from another file.
+/d:dirlist		✅ Works	✅ Works		✅ Works								✅						✅								✅								Searches multiple directories (semicolon-separated).
+
+
+⚡ Key Interaction Notes
+
+EOF vs /x
+	/x fails on last line if file has no newline (EOF).
+	Use /r "^pattern$" to match safely even at EOF.
+
+CRLF vs /x
+	Windows lines end with CRLF (\r\n).
+	/x expects the line to terminate properly. Extra characters (\r) can break matches.
+
+Regex quirks
+	. → any single character
+	* → repeats previous character, not “any string”
+	Character classes [abc] are supported
+	| alternaion does not work → use pipes instead
+
+Literal vs Regex
+	/l disables regex, treats everything literally
+	/c:"multi word" forces literal string, spaces included
+	Case-insensitive /i
+	Only affects letters
+	Works with /r, /x, /l, /c:
+
+Excluding multiple patterns
+	/v inverts matches for a single pattern only
+	To exclude multiple words: chain multiple findstr /v commands
+
+✅ Practical Advice
+
+	Use /r "^pattern$" instead of /x for last-line matching.
+	Always use /c: for multi-word or special-character patterns.
+	Don’t rely on | for OR — chain findstr commands.
+	Remember /i only affects letters — numbers and symbols remain literal.
+	EOF lines without newline break /x — append a newline or use regex anchors.
+
+This table essentially gives you a predictive map: before you type any findstr command, you can check:
+
+	Are you using regex or literal? (/r vs /l)
+	Do you care about exact line match? (/x)
+	Is your last line at EOF without a newline?
+	Do you need case-insensitive? (/i)
+	Are you excluding multiple patterns? (/v)
+
+With this, you can anticipate almost every common gotcha in findstr.

@@ -1,0 +1,94 @@
+:: Used to display the contents of text files directly in the Command Prompt.
+
+:: Display a single file
+	type myfile.txt
+
+:: Display file from specific path
+	type C:\Users\John\Documents\notes.txt
+	type "C:\Users\John Doe\Documents\my file.txt"
+ 	
+:: Using with environment variables
+	type %USERPROFILE%\Documents\file.txt
+
+:: Display multiple files sequentially
+	type file1.txt file2.txt file3.txt
+
+:: Pipe output to other commands
+	type log.txt | find "ERROR"
+::	Shows only lines containing "ERROR".
+
+	type config.txt | sort
+::	Sorts all lines alphabetically.
+
+	type data.txt | more	
+::	If the file is large, 'more' paginates the output — one screen at a time.
+::	Press Space for next page, Enter for next line, Ctrl+C to quit.
+
+	type file.txt | clip
+::	Copies the entire file content to clipboard
+
+:: Redirect output to new file (copy)
+	type original.txt > copy.txt
+::	This overwrites output.txt with the contents of file1.txt.
+::	If output.txt doesn’t exist, it’s created.
+::	If it exists, it’s replaced.
+
+	type file1.txt file2.txt > combined.txt
+::	This creates combined.txt if it doesn't exist and if it does ...
+::	its content is over-written by first the contents in file1.txt ...
+::	followed by the contents in file2.txt. 
+::	file1.txt and file2.txt is effectively combined in combined.txt
+
+:: Append to existing file
+	type newdata.txt >> existing.txt
+::	This appends the contents of file2.txt to the end of output.txt.
+
+:: Redirect output to a device
+	type file.txt > NUL
+::	Sends the file’s contents to the void — often used just to test file readability without cluttering the console.
+
+:: Search within files
+	type server.log | find "404"
+	type *.log | find "exception"	
+::	Displays only lines containing the targeted word "404' or "exception" in this case
+
+	type log.txt | findstr /r /i "error warning critical"
+::	For multiple non-sequential words
+
+:: Display with line numbers
+	type file.txt | findstr /n "^"
+
+:: Count matching lines
+	type file.txt | find /c "INFO"
+::	Returns how many lines contain “INFO”.
+
+:: Extract sections or remove noise
+	type server.log | findstr /v /i "debug info"
+::	Shows only lines not containing those words.
+
+:: Check if file contains specific text without outputting text to stdout
+	type config.txt | find "password" >nul && echo Found || echo Not found
+ 
+:: Display only first few lines
+	type longfile.txt | head
+ 
+:: Display file with timestamp
+	echo %date% %time% & type log.txt
+ 
+:: To check if file exists before typing
+	if exist myfile.txt (type myfile.txt) else (echo File not found)
+
+:: Cleanest way in pure CMD to create an empty file:
+	type nul > filename.txt
+	:: nul is a special device
+	:: nul acts like a virtual empty file — it’s the Windows equivalent of /dev/null in Unix.
+	:: Reading from nul produces no data, writing to nul discards data.
+
+
+
+
+************************************************************************************************
+cmd help info: type /?
+Displays the contents of a text file or files.
+
+TYPE [drive:][path]filename

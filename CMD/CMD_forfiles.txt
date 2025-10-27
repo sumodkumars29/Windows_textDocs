@@ -66,12 +66,21 @@ if @isdir==TRUE rd /s /q @path → removes folders and their contents quietly.
 
 	forfiles /p "C:\Users\S10DIGITAL\Downloads" /s /d -1 /m "*" /c "cmd /c if @isdir==TRUE rd /s /q @path"
 
+:: delete all directories and files and older than today	
+forfiles /p "%USERPROFILE%\Downloads" /s /m "*" /d -1 /c "cmd /c if @isdir==TRUE (rd /s /q @path 2>nul) else (del /f /q @path 2>nul)"
+
+
 :: /p "C:\Users\S10DIGITAL\Downloads" → the path where you want to look.
+:: /s → include all subfolders
 :: /d -0 → selects items with last modified date 0 days ago or older (basically all). You can change -0 to -1, -2, etc., to target older directories.
 :: /m "Pic*" → the pattern to match. Here it matches all folders starting with Pic. Use "*" to target all directories.
 :: /c "cmd /c if @isdir==TRUE rd /s /q @path" → the command to execute:
+:: if @isdir==TRUE → check if it’s a folder or file
+:: if @isdir==TRUE (...) else (...) → check if it’s a folder or file
 :: @isdir==TRUE ensures it only deletes directories, not files.
 :: rd /s /q @path recursively and quietly removes the directory.
+:: del /f /q @path → delete files quietly
+:: 2>nul redirects all error output (stderr) to nowhere
 
 
 
