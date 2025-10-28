@@ -20,6 +20,12 @@ Search in a Specific Folder :
 :: /t	Displays the size and date/time stamp of each found file.
 :: /q	Quiet mode – returns 0 if found, 1 if not (used in scripts).
 
+C:\myScripts>where /r %localappdata% "*Local State*" | findstr /i chrome
+:: /r	Recursive search .
+:: %localappdata% -> search at C:\Users\S10DIGITAL\AppData\local\
+:: "*Local State*" -> search of files that have the words 'Local State' in their names, double quotes used since the argument has a space character
+:: | -> pipe the output of 'where /r %localappdata% "*Local State*"' into findstr /i chrome
+
 *************************************************************************************************
 cmd help info: where /?
 
@@ -60,7 +66,7 @@ Parameter List:
 Examples:
     WHERE /?
     WHERE myfilename1 myfile????.*
-    WHERE $windir:*.*
+    WHERE $	
     WHERE /R c:\windows *.exe *.dll *.bat
     WHERE /Q ??.???
     WHERE "c:\windows;c:\windows\system32:*.dll"

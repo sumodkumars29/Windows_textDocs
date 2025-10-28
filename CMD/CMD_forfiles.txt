@@ -69,6 +69,8 @@ if @isdir==TRUE rd /s /q @path → removes folders and their contents quietly.
 :: delete all directories and files and older than today	
 forfiles /p "%USERPROFILE%\Downloads" /s /m "*" /d -1 /c "cmd /c if @isdir==TRUE (rd /s /q @path 2>nul) else (del /f /q @path 2>nul)"
 
+forfiles /p "%USERPROFILE%\Downloads" /s /m "*" /d -1 /c "cmd /c if @isdir==TRUE (rd /s /q \"@path\" 2>nul) else (del /f /q \"@path\" 2>nul)"
+
 
 :: /p "C:\Users\S10DIGITAL\Downloads" → the path where you want to look.
 :: /s → include all subfolders
