@@ -1,0 +1,3 @@
+:: Get information about the physical Mother Board:
+	Get-CimInstance -ClassName Win32_BaseBoard | Format-List Manufacturer,Product,Version,SerialNumber
+	

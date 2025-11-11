@@ -1,5 +1,12 @@
 :: Windows version:
 	systeminfo | findstr /B /C:"OS Name" /C:"OS Version"
+	
+********************************************************************************************
+
+:: Mother Board details:
+	wmic baseboard get Manufacturer,Product,Version,SerialNumber
+
+********************************************************************************************
 
 :: Processor type
 	wmic cpu get Name,Manufacturer,MaxClockSpeed,NumberOfCores
