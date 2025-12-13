@@ -1,0 +1,677 @@
+================================================================================================================================
+================================================================================================================================
+
+for %f in (*-Erosion1_bgBlue.*) do (for /f "tokens=1 delims=-" %a in ("%~f") do ren "%f" "%a%~xf") Can you explain this part in detail, especially this -> "tokens=1 delims=-"
+
+================================================================================================================================
+================================================================================================================================
+Here’s the breakdown — clean and direct.
+
+## **What this command really does**
+
+for %f in (*-Erosion1_bgBlue.*) do (
+    for /f "tokens=1 delims=-" %a in ("%~f") do ren "%f" "%a%~xf"
+)
+
+There are **two loops** working together.
+
+# **1. Outer loop**
+
+      for %f in (*-Erosion1_bgBlue.*)
+
+      This picks every file that matches:
+
+      *-Erosion1_bgBlue.png
+      *-Erosion1_bgBlue.jpg
+
+      So `%f` becomes each full filename:
+
+      `Pic14-Erosion1_bgBlue.png`
+      `Pic17-Erosion1_bgBlue.jpg`
+      `Pic30-Erosion1_bgBlue.png`
+      … etc.
+
+# **2. Inner loop (this is the part you asked about)**
+
+for /f "tokens=1 delims=-" %a in ("%~f")
+
+      This line **splits the filename into pieces**.
+
+      ## **delims=-**
+
+      * `delims` = delimiter characters
+      * `-` = the character that splits the string
+
+      So it cuts the string at every `-`.
+
+      Example with:
+
+      Pic14-Erosion1_bgBlue.png
+
+      Split on `-` gives:
+
+      1. `Pic14`
+      2. `Erosion1_bgBlue.png`
+
+
+      ## **tokens=1**
+
+      `tokens` selects which split section(s) you want.
+
+      * `tokens=1` → take only the **first** section
+      * that first section is always the base name before the dash
+
+      So:
+
+      Pic14-Erosion1_bgBlue.png
+
+      becomes:
+        %a = Pic14
+
+      The rest is ignored.
+
+
+# **3. The rename**
+
+```
+ren "%f" "%a%~xf"
+```
+
+* `%f` = full original filename to rename → `Pic14-Erosion1_bgBlue.png`
+* `%a` = the clean prefix → `Pic14`
+* `%~xf` = original extension → `.png` or `.jpg`
+
+So the result becomes:
+
+```
+Pic14.png
+```
+
+---
+
+# **Summary**
+
+* **Outer loop**: grabs each file matching “*-Erosion1_bgBlue.*”
+* **Inner loop**: splits filename at `-`
+
+  * `tokens=1` → take only the left side (“Pic14”)
+* **Rename**: rebuilds filename using prefix + original extension
+
+---
+
+If you want, I can also show you how to modify this to keep more tokens, change the delimiter, or rewrite filenames differently.
+
+
+================================================================================================================================
+================================================================================================================================
+
+
+what if we had two '-' in the file name and wanted to target what was within them say 
+'Target1' from Pic-Target1-1.jpg 
+'Target2' from Pic-Target2-2.jpg 
+'Target3' from Pic-Target3-3.jpg 
+the concept is we are duplicating an file named Pic-Target1-1.jpg, and want to name one Target1.jpg and the other Pic1.jpg
+
+
+================================================================================================================================
+================================================================================================================================
+
+Here’s the clean breakdown of how to extract **the middle part** when a filename has **two dashes**.
+
+Your filenames look like:
+
+```
+Pic-Target1-1.jpg
+Pic-Target2-2.jpg
+Pic-Target3-3.jpg
+```
+
+Split on the dash:
+
+1. `Pic`
+2. `Target1`
+3. `1.jpg`
+
+You want to extract:
+
+* **`Target1`**
+* while still having access to the whole name to generate a different output (`Pic1.jpg`)
+
+Let’s break down the logic first, then the command.
+
+---
+
+# ✔ How to extract the middle section (Target1)
+
+Use:
+
+```
+for /f "tokens=2 delims=-" %a in ("Pic-Target1-1.jpg") do echo %a
+```
+
+Explanation:
+
+* `delims=-` → split on `-`
+* `tokens=2` → take the *second* section
+  → which is `Target1`
+
+---
+
+# ✔ How to also get the number after the second dash
+
+You can grab multiple tokens at once:
+
+```
+for /f "tokens=2,3 delims=-" %a in ("Pic-Target1-1.jpg") do echo %a %b
+```
+
+This yields:
+
+* `%a` = `Target1`
+* `%b` = `1.jpg`
+  and `%~xb` gives `.jpg` (extension)
+
+---
+
+# ✔ Now the real thing you want:
+
+From:
+
+```
+Pic-Target1-1.jpg
+```
+
+You want to create:
+
+1. `Target1.jpg`
+2. `Pic1.jpg`
+
+### This is the command that does both:
+
+```
+for %f in (Pic-Target*-*.jpg) do (
+  for /f "tokens=2,3 delims=-" %a %b in ("%~f") do (
+    ren "%f" "%a%~xb"
+    copy "%a%~xb" "Pic%b"
+  )
+)
+```
+
+Let me explain precisely what happens:
+
+### **Inside the inner loop:**
+
+* `%a` = `Target1`
+* `%b` = `1.jpg`
+* `%~xb` = `.jpg`
+* `%b` without extension:
+  use `%~nb` → gives just `1`
+
+Now the rename and copy become:
+
+### Producing:
+
+**1. Target1.jpg**
+
+```
+ren "Pic-Target1-1.jpg" "Target1.jpg"
+```
+
+**2. Pic1.jpg**
+
+```
+copy "Target1.jpg" "Pic1.jpg"
+```
+
+---
+
+# Want a cleaner, corrected final version?
+
+Here is the precise working version you should use in CMD:
+
+```
+for %f in (Pic-Target*-*.jpg) do (
+  for /f "tokens=2,3 delims=-" %a %b in ("%~f") do (
+    ren "%f" "%a%~xf"
+    copy "%a%~xf" "Pic%~nb%~xf"
+  )
+)
+```
+
+### Result:
+
+* Input: `Pic-Target3-3.jpg`
+* Output:
+
+  * `Target3.jpg`
+  * `Pic3.jpg`
+
+Perfect split. Perfect rename. No substring hacks.
+
+---
+
+If you want, I can also help you:
+
+* create a version that works inside a `.bat` file
+* modify it for PNG/JPG mixed
+* change the pattern
+* rename without duplicate overwriting
+* skip existing files
+
+Tell me what you want next.
+
+
+================================================================================================================================
+================================================================================================================================
+
+
+and what if the second delimiter was different say we wanted 
+    'Target1' from Pic-Target1_1.jpg 
+    'Target2' from Pic-Target2_2.jpg 
+    'Target3' from Pic-Target3_3.jpg
+
+================================================================================================================================
+================================================================================================================================
+
+
+Alright, here’s the straight answer with no fluff.
+
+You now have filenames like:
+
+```
+Pic-Target1_1.jpg
+Pic-Target2_2.jpg
+Pic-Target3_3.jpg
+```
+
+The delimiters are:
+
+* First delimiter: `-`
+* Second delimiter: `_`
+
+So the structure is:
+
+```
+Pic - Target1 _ 1.jpg
+```
+
+And you want to extract:
+
+* `Target1`
+* and also the `1` to build `Pic1.jpg`
+
+---
+
+# ✔ CMD **can split on only one delimiter at a time**
+
+So we can’t directly say “split on `-` and `_` simultaneously”.
+
+But we *can* chain them.
+
+---
+
+# ✔ Step-by-step logic
+
+## **Step 1: Split on `-`**
+
+Using `tokens=2`, because the second part is the interesting part:
+
+```
+Pic-Target1_1.jpg
+       ^-------^
+          token 2
+```
+
+This yields:
+
+```
+Target1_1.jpg
+```
+
+## **Step 2: Split again on `_`**
+
+Now split *that*:
+
+```
+Target1_1.jpg → tokens:  Target1   1.jpg
+```
+
+So:
+
+* `%a` = `Target1`
+* `%b` = `1.jpg`
+* `%~xb` = `.jpg`
+* `%~nb` = `1`
+
+---
+
+# ✔ Final working CMD logic
+
+This is the cleanest correct form for CMD:
+
+```
+for %f in (Pic-Target*_*.jpg) do (
+  for /f "tokens=2 delims=-" %a in ("%~f") do (
+    for /f "tokens=1,2 delims=_" %b %c in ("%a") do (
+      ren "%f" "%b%~xfc"
+      copy "%b%~xfc" "Pic%~nc%~xfc"
+    )
+  )
+)
+```
+
+---
+
+# ✔ Breakdown of variables
+
+### First split (`-`)
+
+```
+%a = Target1_1.jpg
+```
+
+### Second split (`_`)
+
+```
+%b = Target1
+%c = 1.jpg
+```
+
+### Extract pieces:
+
+* `%b` → Target1
+* `%~xc` → .jpg
+* `%~nc` → 1
+
+---
+
+# ✔ Final filenames produced
+
+For:
+
+`Pic-Target3_3.jpg`
+
+You get:
+
+1. **Target3.jpg**
+2. **Pic3.jpg**
+
+Exactly what you want.
+
+---
+
+If you want a **shorter version**, **batch-file version**, or **PNG/JPG mixed handling**, just say so.
+
+
+
+
+
+================================================================================================================================
+================================================================================================================================
+
+I know that '%f' in ... 
+      for %f in (Pic-Target*-*.jpg) do () 
+  is not the same as '/f' in ... 
+      for /f "tokens=2,3 delims=-" %a %b in ("%~f") do () 
+Can you explain in detail?
+
+================================================================================================================================
+================================================================================================================================
+
+# Short answer first
+
+They are *two different FOR modes*.
+
+* `for %f in (...) do ...` — the **file-set / list** mode: it iterates a list of items (file names, literals, or wildcard matches). No tokenizing, no `delims`/`tokens` parsing. You use it when you want the literal item as a whole (e.g. each filename).
+* `for /f "options" %a in ("...") do ...` — the **line-parser** mode: it *parses text* (the contents of a file, the output of a command, or a literal string) and can split that text into tokens using `delims` and pick tokens with `tokens=`.
+
+They look similar but behave very differently. Below I’ll explain how each works, what `%~f` does, and show concrete examples so you won’t confuse them again.
+
+---
+
+# `for %f in (set) do ...` — file-set / list iteration
+
+**What it does**
+
+* Treats the parenthesized list as a set of items.
+* If that set is a wildcard like `(*.txt)` it expands to every matching filename in the current directory.
+* Each loop variable (`%f`) receives the *entire* item (e.g. `Pic-Target1_1.jpg`).
+
+**When to use**
+
+* When you need to operate on file names directly (rename, copy, delete).
+* When you want to iterate over a fixed list: `(a b c)` or `("one" "two")`.
+
+**Example**
+
+```cmd
+for %f in (*.jpg) do echo %f
+```
+
+This prints each JPG filename exactly as-is.
+
+**Notes**
+
+* In a batch file use `%%f` instead of `%f`.
+* `for %f in (list) do ...` does *not* split on delimiters; there is no `tokens` option here.
+
+---
+
+# `for /f "options" %a in ( ... ) do ...` — parser mode
+
+**What it does**
+
+* Reads *lines of text* from one of three sources depending on the `in(...)` content:
+
+  * A **file**: `for /f "..." %a in (file.txt) do ...` reads lines from file.txt
+  * A **command**: `for /f "..." %a in ('dir /b') do ...` reads the output lines of the command
+  * A **string**: `for /f "..." %a in ("some text here") do ...` treats the quoted string as a single line and parses it
+* For each line, the parser splits the line into fields using the characters in `delims=` and assigns numbered fields according to `tokens=`.
+
+**Key options**
+
+* `delims=CHARS` — characters to split on (default: space and tab). Example: `delims=-_` splits on dash *and* underscore.
+* `tokens=1,2,3` — which token positions to capture. `tokens=2` yields the second token.
+* `usebackq` — changes how quotes are interpreted (allow `in ("literal string")`, use backquotes for command, etc.)
+* `skip=n`, `eol=char`, etc. — other behaviors.
+
+**Example (parsing a string)**
+
+```cmd
+for /f "tokens=2 delims=-" %a in ("Pic-Target1_1.jpg") do echo %a
+```
+
+Output: `Target1_1.jpg` — because `/f` saw the single string, split on `-`, and returned token 2.
+
+**Example (multiple tokens & second delimiter)**
+
+```cmd
+for /f "tokens=2 delims=-" %a in ("Pic-Target1_1.jpg") do for /f "tokens=1,2 delims=_" %b %c in ("%a") do echo %b %c
+```
+
+Output: `Target1 1.jpg`
+
+**Notes**
+
+* `/f` strips *surrounding* quotes unless you use `usebackq` in certain contexts.
+* If you use `in (filename)` it's treated as a file to read; to parse the literal string you must quote it: `in ("literal")`.
+* In a batch file use `%%a` not `%a`.
+
+---
+
+# What `%~f`, `%~n`, `%~x`, `%~dp`, etc. are
+
+These are **variable modifiers** you can apply to a FOR loop variable to extract parts of the filename:
+
+* `%~f` — full path (for variables that are file paths; `%~fI` expands to full path)
+* `%~n` — name without extension (`Pic-Target1_1`)
+* `%~x` — extension (`.jpg`)
+* `%~nx` — name + extension
+* `%~dp` — drive and path
+* `%~n1` syntax not used — the pattern is `%~<modifier><var>` (e.g. `%~nf` if var is `%f`)
+
+Examples:
+
+```cmd
+for %f in (*.jpg) do echo name:%~nf ext:%~xf
+```
+
+If `%f` is `Pic-Target1_1.jpg` → prints `name:Pic-Target1_1 ext:.jpg`.
+
+When you do `("%~f")` inside `for /f ... in ("...")`, you’re passing the expanded filename as a single quoted string to the parser mode. The `/f` parser will then parse that string.
+
+---
+
+# Why you used `for %f in (*-Erosion1_bgBlue.*)` then `for /f ... in ("%~f")`
+
+Because those are complementary:
+
+1. Outer `for %f in (*-Erosion1_bgBlue.*)` builds a list of filenames (file-set mode).
+2. Inner `for /f "tokens=1 delims=-" %a in ("%~f")` *parses the single filename string* (`%~f`) and returns token 1 (the part before `-`).
+
+This is clean and safe — you iterate real filenames (so wildcards are resolved), and you use /F parsing only on the *single filename string*, not on file contents.
+
+---
+
+# Practical pitfalls & gotchas
+
+* **Percent doubling in batch files:** use `%%f` and `%%a` inside `.bat` files; on the interactive cmd prompt use single `%`.
+* **Variable letters must differ in nested loops.** `for %f ... do ( for /f ... %f in (...) do ...)` will break; use different letters (`%f` outer, `%a` inner).
+* **Spaces get split** by default in `/f` unless you change `delims=`. If your token contains spaces, you’ll lose them unless you adjust delimiters or use quoting.
+* **Quotes are stripped** by `/f` unless you use `usebackq` to treat the quotes specially.
+* **`for in (set)` does not support `tokens`** — if you need parsing, you must use `/f`.
+* **Performance:** `for /f` runs the parser for each line/string; for huge lists doing heavy parsing can be slower than simple `for` operations.
+
+---
+
+# Quick reference examples
+
+1. Iterate filenames directly:
+
+```cmd
+for %f in (*.png) do echo %f
+```
+
+2. Parse filename string to get left-of-dash:
+
+```cmd
+for %f in (Pic-Target*_*.jpg) do for /f "tokens=1 delims=-" %a in ("%~f") do echo %a
+```
+
+3. Parse middle token and the number with two delimiters:
+
+```cmd
+for %f in (Pic-Target*_*.*) do (
+  for /f "tokens=2 delims=-" %a in ("%~f") do (
+    for /f "tokens=1,2 delims=_" %b %c in ("%a") do echo middle=%b number=%~nc ext=%~xc
+  )
+)
+```
+
+==================================================================================================================
+==================================================================================================================
+
+the % will remain % and not %% even in a .bat file for these right?
+
+==================================================================================================================
+==================================================================================================================
+
+No — **the `%` does NOT stay `%` in a batch file.
+EVERY loop variable (including those with modifiers like `%~n`, `%~x`, `%~dp`) must be doubled to `%%` inside a `.bat` file.**
+
+This rule is absolute and applies to:
+
+* plain variables: `%f` → `%%f`
+* modified variables: `%~nf` → `%%~nf`
+* multi-variable loops: `%a %b %c` → `%%a %%b %%c`
+
+---
+
+# ✔ Example: CMD prompt vs batch file
+
+### **Interactive CMD (one `%`):**
+
+```
+for %f in (*.jpg) do echo %~nf %~xf
+```
+
+### **Inside a .BAT file (double `%`):**
+
+```
+for %%f in (*.jpg) do echo %%~nf %%~xf
+```
+
+---
+
+# ✔ Your examples converted to batch syntax
+
+### **Interactive CMD:**
+
+```
+for %f in (Pic-Target*-*.jpg) do (
+  for /f "tokens=2,3 delims=-" %a %b in ("%~f") do (
+    echo %a %b
+  )
+)
+```
+
+### **Batch file (.bat):**
+
+```
+for %%f in (Pic-Target*-*.jpg) do (
+  for /f "tokens=2,3 delims=-" %%a %%b in ("%%~f") do (
+    echo %%a %%b
+  )
+)
+```
+
+Every `%` a loop variable uses must be doubled.
+
+---
+
+# ✔ Why the modifiers still need doubling
+
+These:
+
+* `%~f`
+* `%~n`
+* `%~x`
+* `%~dp`
+* `%~nx`
+
+are not “special” symbols — the `%` is still part of a *FOR variable*.
+So CMD requires:
+
+| CMD prompt | Batch file |
+| ---------- | ---------- |
+| `%~nf`     | `%%~nf`    |
+| `%~xf`     | `%%~xf`    |
+| `%~dpf`    | `%%~dpf`   |
+| `%~n1`     | `%%~n1`    |
+
+If you forget to double them, the batch script will fail or substitute the wrong values.
+
+---
+
+# ✔ One exception
+
+**Environment variables** (`%PATH%`, `%USERPROFILE%`, `%EXT%`, etc.)
+stay single `%` in batch files.
+
+Example inside a .bat:
+
+```
+echo %PATH%
+```
+
+This is NOT doubled.
+
+---
+
+# Final rule (burn this into muscle memory):
+
+### **If it's a FOR-loop variable, double the % in a .BAT file.
+
+If it's an environment variable, leave it single.**
+
+If you want, I can rewrite any of your rename loops into a clean `.bat` version ready to run.

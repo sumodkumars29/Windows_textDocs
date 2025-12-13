@@ -1,0 +1,81 @@
+Remove-Item "$env:LOCALAPPDATA\Google\Chrome\User Data\Default\Code Cache" -Recurse -Force -ErrorAction SilentlyContinue
+
+Remove-Item "$env:LOCALAPPDATA\Google\Chrome\User Data\ShaderCache" -Recurse -Force -ErrorAction SilentlyContinue
+
+
+:: To get the size of space taken up by 'Google Chrome User Data'
+
+Get-ChildItem "$env:LOCALAPPDATA\Google\Chrome\User Data" -Recurse -ErrorAction SilentlyContinue | Measure-Object Length -Sum | Select-Object @{n='Size(GB)';e={[math]::Round($_.Sum/1GB,2)}}
+
+Get-ChildItem "C:\Program Files", "C:\Program Files (x86)", "C:\Users\$env:USERNAME\AppData\Local\Programs" `
+-Recurse -ErrorAction SilentlyContinue | Measure-Object -Property Length -Sum
+
+
+Get-ChildItem "C:\Users\$env:USERNAME\AppData\Local\Temp\WinGet" -Recurse -ErrorAction SilentlyContinue | `
+Measure-Object -Property Length -Sum
+
+Get-ChildItem "C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools" -Recurse `
+-ErrorAction SilentlyContinue | Measure-Object -Property Length -Sum
+
+Get-ChildItem "C:\ProgramData\Microsoft\WinGet\Packages" -Recurse -ErrorAction SilentlyContinue Measure-Object -Property Length -Sum
+
+
+Get-ChildItem "C:\Program Files", "C:\Program Files (x86)", "C:\Users\$env:USERNAME\AppData\Local\Programs" -Recurse -File -ErrorAction SilentlyContinue | Group-Object Directory | Select-Object Name, @{n='Size(GB)';e={[math]::Round(($_.Group | Measure-Object Length -Sum).Sum/1GB,2)}} | Sort-Object 'Size(GB)' -Descending | Select-Object -First 15
+
+
+Get-ChildItem "C:\Users\$env:USERNAME\AppData\Local" -Directory | 
+Select-Object Name, @{n='Size(MB)';e={[math]::Round((Get-ChildItem $_.FullName -Recurse -ErrorAction SilentlyContinue | Measure-Object Length -Sum).Sum/1MB,2)}}
+
+
+Get-ChildItem "C:\Program Files (x86)\Microsoft Visual Studio" -Directory | 
+Select-Object Name, @{n='Size(GB)'; e={[math]::Round((Get-ChildItem $_.FullName -Recurse -ErrorAction SilentlyContinue | Measure-Object Length -Sum).Sum/1GB,2)}}
+
+
+Get-ChildItem "C:\ProgramData\Microsoft\WinGet\Packages" -Directory |
+Select-Object Name, @{n='Size(MB)'; e={[math]::Round((Get-ChildItem $_.FullName -Recurse -ErrorAction SilentlyContinue | Measure-Object Length -Sum).Sum/1MB,2)}}
+
+Get-ChildItem "C:\ProgramData\Microsoft\WinGet\Packages" -Directory |
+Select-Object Name, @{n='Size(GB)'; e={[math]::Round((Get-ChildItem $_.FullName -Recurse -ErrorAction SilentlyContinue | Measure-Object Length -Sum).Sum/1GB,2)}}
+
+Get-ChildItem "$env:LOCALAPPDATA\Packages" -Directory |
+Select-Object Name, @{n='Size(GB)';e={[math]::Round((Get-ChildItem $_.FullName -Recurse -ErrorAction SilentlyContinue | Measure-Object Length -Sum).Sum/1GB,2)}} |
+Sort-Object 'Size(GB)' -Descending |
+Select-Object -First 12
+
+
+Get-ChildItem "$env:LOCALAPPDATA\Google\Chrome\User Data" -Recurse -ErrorAction SilentlyContinue | Measure-Object Length -Sum
+
+Get-ChildItem "$env:LOCALAPPDATA\Google\Chrome\User Data" -Recurse -ErrorAction SilentlyContinue | Measure-Object Length -Sum
+
+
+Remove-Item "$env:LOCALAPPDATA\Google\Chrome\User Data\Default\Cache" -Recurse -Force -ErrorAction SilentlyContinue
+Remove-Item "$env:LOCALAPPDATA\Google\Chrome\User Data\Default\Code Cache" -Recurse -Force -ErrorAction SilentlyContinue
+Remove-Item "$env:LOCALAPPDATA\Google\Chrome\User Data\ShaderCache" -Recurse -Force -ErrorAction SilentlyContinue
+
+
+Get-ChildItem "$env:LOCALAPPDATA\Google\Chrome\User Data" -Recurse -ErrorAction SilentlyContinue | 
+Measure-Object Length -Sum | 
+Select-Object @{n='Size(GB)';e={[math]::Round($_.Sum/1GB,2)}}
+
+
+Get-PSDrive C | Select-Object Used, Free, @{n='Used(GB)';e={[math]::Round($_.Used/1GB,2)}}, @{n='Free(GB)';e={[math]::Round($_.Free/1GB,2)}}
+
+:: Close Chrome completely first.
+Remove-Item "$env:LOCALAPPDATA\Google\Chrome\User Data\Default\Cache" -Recurse -Force -ErrorAction SilentlyContinue
+
+
+Remove-Item "$env:TEMP\*" -Recurse -Force -ErrorAction SilentlyContinue
+Remove-Item "C:\Windows\Temp\*" -Recurse -Force -ErrorAction SilentlyContinue
+
+pip cache purge
+
+npm cache clean --force
+
+Remove-Item "$env:APPDATA\npm-cache" -Recurse -Force -ErrorAction SilentlyContinue
+
+:: :: :: DON'T DO UNLESS VERY SURE :: :: :: 
+# Analyze first 
+Dism /Online /Cleanup-Image /AnalyzeComponentStore
+
+# Then clean
+Dism /Online /Cleanup-Image /StartComponentCleanup /ResetBase
